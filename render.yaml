@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: postie-backend
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MISTRAL_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o
+      - key: MISTRAL_MODEL
+        value: mistral-large-latest
+      - key: EMBED_MODEL
+        value: text-embedding-3-small
+      - key: CHROMA_PATH
+        value: /data/chroma
+      - key: CORS_ORIGINS
+        value: http://localhost:3000
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
