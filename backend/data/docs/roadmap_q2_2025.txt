@@ -1,0 +1,239 @@
+ROADMAP IA WEB FACTORY — Q2 2025 (AVRIL - JUIN 2025)
+Document interne OVH Cloud
+Équipe : IA Web Factory (IAWF)
+Version : 1.3 — Validée le 28 mars 2025
+Auteur : Takwa Aouichaoui (PO IA)
+Validé par : Éric Vasseur (VP Product), Marc Lefebvre (Tech Lead)
+Statut : APPROUVÉE
+
+═══════════════════════════════════════════════════════════════
+RÉSUMÉ EXÉCUTIF
+═══════════════════════════════════════════════════════════════
+
+Cette roadmap présente les initiatives produit de l'équipe IA Web Factory pour le deuxième trimestre 2025 (avril à juin). Elle s'inscrit dans la vision annuelle "IA Web Factory 2025 : Autonomie et qualité à l'échelle".
+
+Objectifs Q2 2025 :
+1. Déployer la v2 de l'agent de génération de pages produit (Agent-Prod-v2)
+2. Lancer la fonctionnalité de génération multilingue (FR + EN en production)
+3. Migrer la base vectorielle de ChromaDB vers Weaviate
+4. Atteindre un taux de satisfaction agent > 80% (vs 73% en Q1)
+5. Réduire le temps moyen de génération d'une page de 45s à moins de 20s
+
+Budget Q2 : 85 000 € (dont 45 000 € masse salariale équipe, 25 000 € infra/APIs, 15 000 € autres)
+
+═══════════════════════════════════════════════════════════════
+ÉPICS ET INITIATIVES Q2 2025
+═══════════════════════════════════════════════════════════════
+
+ÉPIC 1 — AGENT-PROD-V2 : REFONTE DE L'AGENT DE GÉNÉRATION DE PAGES PRODUIT
+Priorité : HAUTE | Effort estimé : 45 points | Owner : Antoine Dubois + Sophie Nguyen
+Livraison cible : Fin avril 2025
+
+Contexte :
+La v1 de l'agent de génération de pages produit présente des limites identifiées en Q1 : latence élevée (45s en moyenne), conformité éditoriale à 73% (objectif 85%), et incapacité à gérer les pages avec tableaux de pricing complexes.
+
+User Stories incluses dans l'épic :
+
+US-247 : En tant qu'éditeur, je veux que l'agent génère une page produit en moins de 20 secondes afin de pouvoir travailler de manière fluide.
+Critères d'acceptance :
+- GIVEN une demande de génération de page simple
+- WHEN l'éditeur clique sur "Générer"
+- THEN la page est générée et affichée en moins de 20 secondes dans 95% des cas
+
+US-248 : En tant qu'éditeur, je veux que l'agent prenne en charge les tableaux de pricing à 4 colonnes afin de générer des pages pricing complètes.
+Critères d'acceptance :
+- GIVEN un tableau de pricing avec 4 offres et jusqu'à 15 caractéristiques
+- WHEN l'agent génère la page
+- THEN le tableau HTML est structurellement correct et responsive
+
+US-249 : En tant que responsable qualité, je veux un score de conformité éditoriale > 85% sur les outputs de l'agent afin de réduire le temps de correction manuelle.
+Note technique : Implémentation d'une étape de post-processing avec validation automatique via les guidelines RAG avant présentation à l'utilisateur.
+
+US-251 : En tant que PO, je veux un tableau de bord temps réel des métriques de l'agent (taux d'utilisation, latence moyenne, taux de satisfaction) afin de piloter les performances.
+
+Dépendances :
+- Migration Weaviate (Épic 3) peut être faite en parallèle mais doit être terminée avant la mise en prod de la v2
+- Validation des nouvelles guidelines éditoriales v3.2 (obtenue le 15 mars — OK)
+
+---
+
+ÉPIC 2 — MULTILANGUE : DÉPLOIEMENT GÉNÉRATION FR + EN
+Priorité : HAUTE | Effort estimé : 35 points | Owner : Camille Bernard + Lisa Martin
+Livraison cible : Mi-mai 2025
+
+Contexte :
+La décision #015 (juillet 2024) acte la stratégie bilingue FR+EN. Les travaux préparatoires réalisés en Q1 (benchmarks de qualité des outputs en anglais, adaptation des prompts système) permettent de lancer le déploiement en production.
+
+User Stories incluses :
+
+US-263 : En tant qu'éditeur, je veux sélectionner la langue de génération (FR ou EN) dans l'interface de l'agent afin de produire du contenu pour le marché cible.
+Critères d'acceptance :
+- GIVEN l'éditeur est sur l'interface de l'agent
+- WHEN il sélectionne "English (UK)" dans le menu langue
+- THEN tous les outputs de l'agent (HTML, textes) sont en anglais britannique
+- THEN les guidelines éditoriales anglaises sont automatiquement injectées dans le contexte
+
+US-264 : En tant que responsable marché UK, je veux que les outputs en anglais respectent les conventions britanniques (orthographe, tonalité formelle adaptée) afin d'éviter des corrections manuelles.
+Note : Test A/B en cours pour valider EN-UK vs EN-US pour le marché anglophone global.
+
+US-265 : En tant que PO, je veux un rapport mensuel de comparaison qualité FR vs EN afin de détecter les dégradations de qualité sur la langue secondaire.
+
+---
+
+ÉPIC 3 — MIGRATION VECTORDB : CHROMADB → WEAVIATE
+Priorité : HAUTE | Effort estimé : 25 points | Owner : Sophie Nguyen + Youssef Amrani
+Livraison cible : Fin avril 2025
+
+Contexte :
+La migration de ChromaDB (prototype) vers Weaviate (production) est planifiée depuis la décision #003. Les tests de charge de décembre 2024 confirment le gain de performance attendu (+40%).
+
+Plan de migration :
+Phase 1 — Déploiement Weaviate en parallèle (semaine 1-2 avril)
+Phase 2 — Double indexation (ChromaDB + Weaviate) pour validation (semaine 3-4 avril)
+Phase 3 — Bascule du trafic sur Weaviate (fin avril)
+Phase 4 — Décommissionnement ChromaDB (mai)
+
+Risques identifiés :
+- Risque : Différences de résultats entre ChromaDB et Weaviate sur certaines requêtes
+  Mitigation : Tests de non-régression sur 500 requêtes de référence avant bascule
+- Risque : Surcoût infra pendant la phase de double indexation
+  Mitigation : Durée limitée à 2 semaines maximum
+
+---
+
+ÉPIC 4 — RAG ASSISTANT PO : PROTOTYPE D'ASSISTANT IA POUR LES ÉQUIPES PRODUIT
+Priorité : MOYENNE | Effort estimé : 20 points | Owner : Takwa Aouichaoui (PO) + Antoine Dubois
+Livraison cible : Fin juin 2025
+
+Contexte :
+Issue de l'observation terrain du PO, cette initiative vise à développer un assistant IA permettant aux Product Owners de l'équipe IAWF d'interroger en langage naturel la documentation interne (guidelines, décisions produit, comptes-rendus, roadmaps). L'objectif est de réduire le temps de recherche d'information et d'améliorer la prise de décision.
+
+Note : Ce prototype est développé en parallèle dans le cadre d'un mémoire de M2 par Takwa Aouichaoui (Centrale Lille, Master MIAS). La double valeur (projet académique + valeur opérationnelle) a convaincu la direction d'allouer du temps de développement à cette initiative.
+
+User Stories incluses :
+
+US-271 : En tant que PO de l'équipe IAWF, je veux pouvoir poser une question en langage naturel sur la documentation interne afin d'obtenir une réponse rapide sans avoir à chercher manuellement dans Confluence.
+Critères d'acceptance :
+- GIVEN un ensemble de documents internes chargés (guidelines, ADR, roadmaps)
+- WHEN le PO pose une question (ex: "Quelle est la stratégie multilingue de l'équipe ?")
+- THEN le système retourne une réponse pertinente avec les sources documentaires en moins de 5 secondes
+
+US-272 : En tant que PO, je veux pouvoir uploader facilement de nouveaux documents dans le système afin de maintenir la base de connaissances à jour.
+
+US-273 : En tant que PO, je veux pouvoir noter la pertinence d'une réponse (👍/👎) afin d'améliorer continuellement la qualité du système.
+
+US-274 : En tant que nouveau membre de l'équipe, je veux pouvoir utiliser l'assistant pour répondre à mes questions d'onboarding afin de monter en compétence plus rapidement.
+
+Stack technique retenue : Python, LangChain, ChromaDB, OpenAI GPT-3.5-turbo, Streamlit
+MVP attendu : Prototype fonctionnel démontrable en sprint review de fin juin 2025
+
+---
+
+ÉPIC 5 — PERFORMANCE ET MONITORING
+Priorité : MOYENNE | Effort estimé : 15 points | Owner : Pierre Leroy + Marc Lefebvre
+Livraison cible : Continue (tout le Q2)
+
+US-280 : En tant que PO, je veux un tableau de bord Datadog affichant en temps réel les KPIs de l'agent (requêtes/minute, latence P50/P95/P99, taux d'erreur) afin de détecter les anomalies rapidement.
+
+US-281 : En tant que Tech Lead, je veux des alertes automatiques sur Slack (#iawf-prod-alerts) si la latence P95 dépasse 30 secondes ou si le taux d'erreur dépasse 2% afin d'intervenir rapidement.
+
+US-282 : En tant que PO, je veux un rapport hebdomadaire automatique par email récapitulant les performances et les feedbacks utilisateurs afin de piloter l'équipe sans réunion supplémentaire.
+
+═══════════════════════════════════════════════════════════════
+PLANNING SPRINT-PAR-SPRINT
+═══════════════════════════════════════════════════════════════
+
+SPRINT 18 (31 mars - 11 avril)
+Focus : Démarrage migration Weaviate + US-247 (performance agent)
+Capacité : 42 points
+Stories planifiées : US-247 (8pts), US-248 (13pts), Migration Phase 1 (8pts), US-280 (5pts), US-282 (5pts), buffers (3pts)
+
+SPRINT 19 (14 - 25 avril)
+Focus : Finalisation migration + US-249 (conformité éditoriale)
+Capacité : 45 points
+Stories planifiées : US-249 (13pts), US-251 (8pts), Migration Phase 2+3 (10pts), US-263 (8pts), buffers (6pts)
+
+SPRINT 20 (28 avril - 9 mai)
+Focus : Déploiement Agent-Prod-v2 en production + début multilingue
+Capacité : 45 points
+Go/No-Go production Agent-v2 : 5 mai (décision PO + Tech Lead)
+
+SPRINT 21 (12 - 23 mai)
+Focus : Déploiement multilingue FR+EN + début RAG Assistant PO
+Capacité : 42 points (1 dev en congés)
+
+SPRINT 22 (26 mai - 6 juin)
+Focus : Consolidation multilingue + RAG Assistant PO avancement
+Capacité : 45 points
+
+SPRINT 23 (9 - 20 juin)
+Focus : Finalisation RAG Assistant PO + bilan Q2
+Capacité : 40 points (période de soutenance mémoire Takwa - disponibilité réduite)
+
+SPRINT 24 (23 juin - 4 juillet)
+Focus : Buffer, dette technique, préparation Q3
+Capacité : 45 points
+
+═══════════════════════════════════════════════════════════════
+OKR Q2 2025
+═══════════════════════════════════════════════════════════════
+
+OBJECTIF 1 : Améliorer significativement la qualité et la performance de l'agent
+KR1.1 : Latence moyenne de génération < 20 secondes (vs 45s en Q1) — Target : 100%
+KR1.2 : Taux de conformité éditoriale > 85% (vs 73% en Q1) — Target : 100%
+KR1.3 : Taux de satisfaction utilisateur > 80% (vs 73% en Q1) — Target : 100%
+
+OBJECTIF 2 : Étendre la couverture géographique
+KR2.1 : Agent multilingue FR+EN en production avant fin mai — Target : 100%
+KR2.2 : 200 pages en anglais générées et validées par l'équipe éditoriale UK — Target : 100%
+
+OBJECTIF 3 : Moderniser l'infrastructure technique
+KR3.1 : Migration Weaviate terminée et ChromaDB décommissionné avant fin mai — Target : 100%
+KR3.2 : Zéro incident P0 lié à la base vectorielle en Q2 — Target : 100%
+
+OBJECTIF 4 : Développer les outils d'aide à la décision interne
+KR4.1 : RAG Assistant PO prototype démontrable en sprint review fin juin — Target : 100%
+KR4.2 : Taux d'adoption interne > 50% des PO de l'équipe sur 2 semaines de test — Target : 75%
+
+═══════════════════════════════════════════════════════════════
+RISQUES ET MITIGATION
+═══════════════════════════════════════════════════════════════
+
+RISQUE 1 — CRITIQUE
+Description : Dégradation de la qualité des outputs multilingues (EN) en dessous du seuil acceptable
+Probabilité : MOYENNE | Impact : ÉLEVÉ
+Mitigation : Tests A/B en cours en Q1, seuil de qualité minimum défini avant déploiement, rollback possible via feature flag
+
+RISQUE 2 — MODÉRÉ
+Description : Retard sur la migration Weaviate pouvant impacter le déploiement Agent-v2
+Probabilité : FAIBLE | Impact : ÉLEVÉ
+Mitigation : Migration prévue 2 semaines avant le go/no-go Agent-v2, ressources dédiées (Sophie + Youssef)
+
+RISQUE 3 — FAIBLE
+Description : Dépassement du budget API LLM si les tests multilingues sont plus intenses que prévu
+Probabilité : FAIBLE | Impact : MODÉRÉ
+Mitigation : Budget "exploration" de 5 000 € en réserve, monitoring hebdomadaire par Pierre Leroy
+
+RISQUE 4 — MODÉRÉ
+Description : Indisponibilité partielle du PO en juin (période soutenance mémoire)
+Probabilité : CERTAINE | Impact : MODÉRÉ
+Mitigation : Marc Lefebvre assurera le rôle de PO par intérim sur les décisions techniques pendant cette période
+
+═══════════════════════════════════════════════════════════════
+PROCESSUS DE MISE À JOUR DE LA ROADMAP
+═══════════════════════════════════════════════════════════════
+
+Cette roadmap est un document vivant. Elle est mise à jour :
+- Après chaque sprint review (ajustements de planning)
+- Lors de changements de priorité demandés par la Direction Produit
+- En cas de risque matérialisé nécessitant une re-priorisation
+
+Toute modification majeure de la roadmap Q2 nécessite une validation par :
+- Le PO (Takwa Aouichaoui)
+- Le VP Product (Éric Vasseur)
+- Le Tech Lead (Marc Lefebvre) pour les impacts techniques
+
+FIN DU DOCUMENT
+Version 1.3 — 28 mars 2025
+Contact : takwa.aouichaoui@ovhcloud.com
+Document confidentiel — Usage interne OVH Cloud uniquement

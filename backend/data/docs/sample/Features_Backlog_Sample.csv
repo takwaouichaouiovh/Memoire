@@ -1,0 +1,16 @@
+id,title,description,reach,impact,confidence,effort,business_value,time_criticality,risk_reduction,job_size,moscow,epic
+F-101,SSO Azure AD,"Permettre la connexion via Azure AD pour les clients entreprise",8000,3,0.9,8,9,8,6,8,Must,EPIC-AUTH-014
+F-102,Mapping rôles IdP,"Mapper les groupes IdP aux rôles PO.ai",6500,2,0.9,5,7,7,5,5,Must,EPIC-AUTH-014
+F-103,Détection doublons backlog,"Alerter le PO en cas de story similaire existante",4500,3,0.7,5,7,5,4,5,Should,EPIC-AI-027
+F-104,Export CSV backlog,"Exporter le backlog priorisé en CSV",3000,2,0.95,3,5,4,2,3,Should,EPIC-DATA-009
+F-105,Cache Redis embeddings,"Mettre en cache les embeddings calculés",2000,2,0.85,5,4,3,3,5,Should,EPIC-PERF-008
+F-106,Refonte UI Sidebar,"Sidebar collapsible avec icônes",5000,1,0.9,3,3,2,2,3,Could,EPIC-UI-005
+F-107,Migration pgvector (spike),"Évaluer la faisabilité de pgvector",1500,2,0.6,3,6,5,7,3,Must,EPIC-TECH-022
+F-108,Connecteur Jira sync,"Synchronisation bidirectionnelle avec Jira",7000,3,0.7,13,8,7,5,13,Should,EPIC-INT-012
+F-109,Connecteur Azure DevOps,"Sync avec Azure DevOps Boards",4000,3,0.6,13,6,4,4,13,Could,EPIC-INT-014
+F-110,Logs audit SOC 2,"Audit logs conformes SOC 2",5000,2,0.85,8,8,9,9,8,Must,EPIC-SEC-021
+F-111,Support multi-langues,"Interface FR/EN/DE/ES",10000,2,0.8,8,5,3,2,8,Could,EPIC-I18N-007
+F-112,Agent grooming AC non-fonctionnels,"Génération auto des AC de perf/sécurité",3500,3,0.7,5,7,6,4,5,Should,EPIC-AI-031
+F-113,Dashboard analytics PO,"Vue d'ensemble du produit avec KPIs",6000,3,0.75,13,8,5,3,13,Should,EPIC-DATA-014
+F-114,Mode hors-ligne PWA,"Application installable et utilisable offline",2000,1,0.5,8,2,1,1,8,Won't,EPIC-UI-009
+F-115,Webhooks Slack/Teams,"Notifier les équipes via webhook sortant",3500,2,0.9,3,5,4,2,3,Could,EPIC-INT-015

@@ -1,0 +1,300 @@
+PROCESSUS DE VALIDATION ET MISE EN PRODUCTION D'UNE FEATURE — IAWF
+Document interne OVH Cloud
+Équipe : IA Web Factory
+Version : 1.4 — Mars 2025
+Auteur : Marc Lefebvre (Tech Lead), Takwa Aouichaoui (PO)
+
+═══════════════════════════════════════════════════════════════
+INTRODUCTION
+═══════════════════════════════════════════════════════════════
+
+Ce document décrit le processus complet de validation et de mise en production d'une feature au sein de l'équipe IA Web Factory. Il couvre toutes les étapes depuis la validation fonctionnelle jusqu'au monitoring post-déploiement.
+
+Ce processus a été formalisé suite à plusieurs incidents de production en Q3 2024 liés à des déploiements insuffisamment testés. Il doit être suivi sans exception pour toute feature impactant la production.
+
+Dernière révision : Suite à la rétrospective du Sprint 16 (mars 2025), le processus a été allégé sur les features "low risk" (voir classification section 1.1).
+
+═══════════════════════════════════════════════════════════════
+PARTIE 1 — CLASSIFICATION DES FEATURES
+═══════════════════════════════════════════════════════════════
+
+1.1 NIVEAUX DE RISQUE
+
+Avant d'appliquer le processus de validation, chaque feature est classifiée selon son niveau de risque. Cette classification détermine le niveau de rigueur des tests requis.
+
+NIVEAU 1 — LOW RISK (processus allégé)
+Critères :
+- Aucune modification du modèle LLM ou des prompts systèmes
+- Aucun impact sur la base vectorielle ou les embeddings
+- Modifications uniquement d'interface (CSS, labels, icônes)
+- Nouvelles fonctionnalités d'affichage sans calcul complexe
+
+Exemples : Changement de couleur d'un bouton, ajout d'un tooltip, modification d'un label de champ
+
+Processus requis : Code review (1 reviewer) + Test manuel développeur + Déploiement direct en staging → prod
+
+NIVEAU 2 — MEDIUM RISK (processus standard)
+Critères :
+- Modification des prompts templates (mais pas du modèle LLM)
+- Ajout d'une nouvelle source de documents dans le RAG
+- Modification de la stratégie de chunking
+- Nouvelles fonctionnalités avec appels API LLM
+- Modification du workflow de génération
+
+Exemples : Nouveau type de page supporté par l'agent, modification du prompt système pour améliorer la conformité éditoriale, ajout du support DOCX
+
+Processus requis : Code review (2 reviewers) + Tests unitaires + Tests d'intégration + QA humain sur 20 cas de test + Staging 48h + Déploiement progressif 10%/50%/100%
+
+NIVEAU 3 — HIGH RISK (processus renforcé)
+Critères :
+- Changement de modèle LLM ou de version de modèle
+- Migration de base vectorielle (ChromaDB → Weaviate, etc.)
+- Modification de l'architecture RAG (chunking strategy, embedding model)
+- Feature affectant la facturation ou les données clients
+- Refonte majeure de l'interface
+
+Exemples : Migration Weaviate (Épic 3 Q2), changement de Claude 3 Opus vers une nouvelle version, refonte complète de l'agent de génération
+
+Processus requis : Code review (Tech Lead obligatoire) + Suite de tests complète + QA humain sur 100 cas de test minimum + Staging 1 semaine + Feature flag obligatoire + Déploiement progressif 1%/5%/10%/50%/100% + Comité go/no-go
+
+═══════════════════════════════════════════════════════════════
+PARTIE 2 — PROCESSUS DE VALIDATION STANDARD (NIVEAU 2)
+═══════════════════════════════════════════════════════════════
+
+2.1 ÉTAPE 1 — VALIDATION FONCTIONNELLE PAR LE PO
+
+Qui : Product Owner (Takwa Aouichaoui)
+Quand : À la fin du développement, avant la demande de code review
+Durée : 1-3h selon la complexité
+
+Checklist validation PO :
+[ ] Tous les critères d'acceptance de la user story sont satisfaits
+[ ] Les cas limites définis lors du refinement sont gérés
+[ ] Le comportement en cas d'erreur est acceptable (messages d'erreur explicites, pas de crashs silencieux)
+[ ] L'interface est cohérente avec le design system (si applicable — validation avec Lisa Martin)
+[ ] Les textes affichés respectent les guidelines éditoriales (si applicable)
+[ ] La performance est acceptable (pas de latence anormale visible)
+
+En cas de refus :
+→ Ticket Jira mis en status "Validation Failed" avec commentaire détaillé
+→ Développeur notifié sur Slack
+→ Reprogrammé dans le sprint courant ou prochain selon urgence
+
+2.2 ÉTAPE 2 — CODE REVIEW
+
+Qui : Minimum 2 reviewers (dont au minimum 1 senior dev)
+Quand : Après validation PO
+Durée : 2-8h selon la taille du PR
+
+Critères de code review IAWF :
+
+CRITÈRES OBLIGATOIRES (blocants si non respectés) :
+- Pas de clé API hardcodée dans le code
+- Variables sensibles dans les variables d'environnement ou le vault
+- Gestion des exceptions pour tous les appels API externes
+- Logs structurés pour le debugging (format JSON)
+- Pas de données personnelles dans les logs
+- Tests unitaires couvrant les branches principales
+- Documentation des fonctions publiques (docstrings)
+
+CRITÈRES RECOMMANDÉS (non blocants) :
+- Nommage des variables explicite (pas de x, tmp, data1...)
+- Fonctions de moins de 50 lignes
+- Pas de code commenté laissé dans la PR
+- README mis à jour si nécessaire
+
+Processus de code review :
+1. Développeur crée une PR avec description de la feature et lien Jira
+2. Assignation manuelle des reviewers (ou rotation automatique via GitHub Actions)
+3. Reviewers ont 48h ouvrées maximum pour effectuer la review
+4. Discussions résolues par le développeur
+5. Approbation des 2 reviewers requise pour merger
+6. Merge par le développeur (jamais par un reviewer)
+
+2.3 ÉTAPE 3 — TESTS UNITAIRES ET D'INTÉGRATION
+
+Qui : Développeur principal
+Outils : pytest (Python), coverage.py
+
+Exigences de couverture :
+- Coverage global : > 80%
+- Coverage sur les nouvelles fonctions : > 90%
+- Zéro test en échec avant merge
+
+Structure des tests IAWF :
+tests/
+├── unit/
+│   ├── test_rag_engine.py       # Tests du moteur RAG
+│   ├── test_chunking.py         # Tests de la stratégie de chunking
+│   ├── test_embeddings.py       # Tests de vectorisation (avec mocks API)
+│   └── test_utils.py            # Tests des fonctions utilitaires
+├── integration/
+│   ├── test_pipeline_rag.py     # Tests du pipeline complet (mock LLM)
+│   ├── test_api_openai.py       # Tests d'intégration API (avec clés de test)
+│   └── test_feedback_system.py  # Tests du système de feedback
+└── e2e/
+    └── test_agent_generation.py  # Tests end-to-end (staging uniquement)
+
+2.4 ÉTAPE 4 — QA HUMAIN (20 CAS DE TEST MINIMUM)
+
+Qui : QA Engineer (si disponible) ou développeur + PO en binôme
+Quand : Sur l'environnement de staging, après déploiement en staging
+
+Jeu de tests de référence (mis à jour à chaque nouvelle feature) :
+20 cas de test standards + cas spécifiques à la feature
+
+Cas de test standards (toujours exécutés) :
+1. Génération d'une page produit simple (page VPS) → vérifier HTML valide
+2. Génération d'une page pricing avec tableau 4 colonnes → vérifier structure tableau
+3. Génération en français → vérifier conformité guidelines éditoriales
+4. Génération en anglais → vérifier orthographe et tonalité UK
+5. Requête avec document source très court (< 100 mots) → vérifier comportement
+6. Requête avec document source très long (> 50 000 mots) → vérifier performance
+7. Tentative avec clé API invalide → vérifier message d'erreur explicite
+8. Upload d'un fichier non supporté (ex: .xlsx) → vérifier message d'erreur
+9. Upload d'un fichier PDF corrompu → vérifier résistance au crash
+10. Question hors domaine ("Quel est le temps qu'il fait ?") → vérifier réponse appropriée
+11. Feedback positif (👍) → vérifier enregistrement dans feedback_log.csv
+12. Feedback négatif (👎) → vérifier enregistrement et catégorisation
+13. Session longue (> 20 échanges) → vérifier absence de dégradation mémoire
+14. Rechargement de la page pendant une génération → vérifier comportement
+15. Utilisation simultanée par 3 utilisateurs → vérifier absence d'interférences
+16-20 : Cas spécifiques à la feature en cours de validation
+
+Critères de succès QA :
+- 100% des cas P0 (critiques) passants
+- > 95% des cas P1 (majeurs) passants
+- > 85% des cas P2 (mineurs) passants
+- Zéro erreur 500 non gérée
+- Zéro fuite de données dans les logs
+
+2.5 ÉTAPE 5 — STAGING (48H MINIMUM)
+
+Environnement staging : https://iawf-staging.ovhcloud.internal
+
+Règles de staging :
+- Feature déployée en staging 48h ouvrées minimum avant mise en prod
+- Équipe notifiée via Slack #iawf-reviews pour test volontaire
+- Monitoring activé (Datadog staging)
+- Aucune feature ne peut passer en prod sans avoir été en staging
+
+2.6 ÉTAPE 6 — DÉPLOIEMENT PROGRESSIF
+
+Outil : Feature flags via LaunchDarkly
+
+Séquence standard (Niveau 2) :
+Phase 1 (J0) : 10% des utilisateurs → monitoring 24h
+Phase 2 (J+1) : 50% des utilisateurs → monitoring 24h  
+Phase 3 (J+2) : 100% des utilisateurs si aucune anomalie
+
+Critères de passage à la phase suivante :
+- Taux d'erreur < 1%
+- Latence P95 < 30 secondes
+- Aucun incident P0 ou P1 déclaré
+- Taux de satisfaction (si feedback disponible) > 70%
+
+Rollback :
+En cas de problème : désactivation du feature flag → retour instantané à la version précédente
+Responsable rollback : Marc Lefebvre (Tech Lead) ou tout développeur senior en son absence
+
+═══════════════════════════════════════════════════════════════
+PARTIE 3 — CAS SPÉCIAUX
+═══════════════════════════════════════════════════════════════
+
+3.1 HOTFIX EN PRODUCTION
+
+Pour les incidents P0 (production down) uniquement :
+1. Développeur crée une branche hotfix depuis main
+2. Fix développé et reviewé par 1 reviewer (Tech Lead si disponible)
+3. Tests manuels rapides (pas de test suite complète)
+4. Déploiement direct en production sans staging (exception validée par Tech Lead)
+5. Post-mortem obligatoire dans les 48h suivant le hotfix
+
+3.2 EXPÉRIENCES ET A/B TESTS
+
+Pour les A/B tests sur les prompts ou les algorithmes de ranking :
+1. Définir clairement les métriques de succès avant le test
+2. Taille d'échantillon minimum : 500 interactions par variante
+3. Durée minimum : 2 semaines (pour lisser les variations hebdomadaires)
+4. Analyse par Pierre Leroy (Data Analyst)
+5. Décision go/no-go par le PO avec présentation en sprint review
+
+3.3 DÉPLOIEMENTS D'URGENCE (HORS HOTFIX)
+
+Parfois nécessaires pour des corrections légales, réglementaires ou contractuelles.
+→ Process accéléré validé par VP Product (Éric Vasseur) uniquement
+→ Documentation post-déploiement obligatoire dans les 24h
+
+═══════════════════════════════════════════════════════════════
+PARTIE 4 — POST-DÉPLOIEMENT ET MONITORING
+═══════════════════════════════════════════════════════════════
+
+4.1 MONITORING POST-DÉPLOIEMENT
+
+Durée de surveillance renforcée : 72h après déploiement à 100%
+
+Métriques surveillées :
+- Taux d'erreur API OpenAI/Anthropic (seuil alerte : > 2%)
+- Latence P95 de génération (seuil alerte : > 30s)
+- Taux de feedback négatif (seuil alerte : > 30%)
+- Nombre de sessions actives (baseline ± 20%)
+- Utilisation mémoire et CPU des serveurs (seuil alerte : > 80%)
+
+Alertes configurées dans Datadog → Slack #iawf-prod-alerts
+Astreinte : Marc Lefebvre (principal), Antoine Dubois (backup)
+
+4.2 COMMUNICATION POST-DÉPLOIEMENT
+
+Pour les features majeures (impactant les utilisateurs finaux) :
+- Message dans #iawf-general annonçant la mise en prod
+- Email aux stakeholders clés (Marie Durand, Thomas Renard, Éric Vasseur)
+- Mise à jour du changelog Confluence
+
+Pour les évolutions techniques internes :
+- Message dans #iawf-dev uniquement
+- Mise à jour du changelog technique GitHub
+
+4.3 BILAN J+7
+
+Une semaine après le déploiement complet, le PO réalise un bilan :
+- Métriques de performance vs objectifs définis en user story
+- Analyse du feedback utilisateur
+- Identification des bugs ou améliorations à planifier
+- Go/no-go pour maintenir ou rollbacker la feature (rare mais prévu)
+
+═══════════════════════════════════════════════════════════════
+PARTIE 5 — RESPONSABILITÉS
+═══════════════════════════════════════════════════════════════
+
+Product Owner (Takwa Aouichaoui) :
+- Validation fonctionnelle (étape 1)
+- Classification du niveau de risque
+- Go/no-go final pour le déploiement
+- Communication stakeholders
+
+Tech Lead (Marc Lefebvre) :
+- Code review (étape 2)
+- Décision rollback si nécessaire
+- Validation du plan de déploiement progressif
+- Gestion des astreintes
+
+Développeur principal :
+- Développement
+- Tests unitaires et d'intégration
+- Correction des retours code review
+- Déploiement en staging
+- Documentation
+
+QA / Développeur secondaire :
+- Exécution des tests de non-régression
+- Validation des cas de test spécifiques à la feature
+
+Data Analyst (Pierre Leroy) :
+- Monitoring post-déploiement
+- Analyse des métriques de feedback
+- Rapport bilan J+7
+
+FIN DU DOCUMENT
+Version 1.4 — Mars 2025
+Contact : marc.lefebvre@ovhcloud.com | takwa.aouichaoui@ovhcloud.com
+Document confidentiel — Usage interne OVH Cloud uniquement
