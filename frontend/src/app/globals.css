@@ -57,12 +57,13 @@ html[data-theme="light"] .bg-zinc-700\/40    { background-color: rgba(212,212,21
 html[data-theme="light"] .bg-zinc-700\/30    { background-color: rgba(212,212,216,0.35) !important; }
 
 /* Text */
+html[data-theme="light"] .text-white         { color: #18181b !important; }
 html[data-theme="light"] .text-zinc-100      { color: #18181b !important; }
 html[data-theme="light"] .text-zinc-200      { color: #27272a !important; }
 html[data-theme="light"] .text-zinc-300      { color: #3f3f46 !important; }
 html[data-theme="light"] .text-zinc-400      { color: #52525b !important; }
-html[data-theme="light"] .text-zinc-500      { color: #71717a !important; }
-html[data-theme="light"] .text-zinc-600      { color: #71717a !important; }
+html[data-theme="light"] .text-zinc-500      { color: #6b7280 !important; }
+html[data-theme="light"] .text-zinc-600      { color: #4b5563 !important; }
 
 /* Borders */
 html[data-theme="light"] .border-zinc-600    { border-color: #d4d4d8 !important; }
