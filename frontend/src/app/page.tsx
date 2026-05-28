@@ -187,7 +187,7 @@ export default function HomePage() {
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
             <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-            OVHcloud Edition
+            AI-powered PO assistant
           </span>
           <h1 className="mt-5 text-5xl font-bold leading-tight tracking-tight text-gray-900">
             Your <span style={{ color: PRIMARY }}>AI</span> copilot for product decisions
@@ -228,7 +228,7 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-1.5">
               <Cloud className="h-3.5 w-3.5 text-gray-400" />
-              <span className="font-medium text-gray-700">OVH-ready</span>
+              <span className="font-medium text-gray-700">Cloud-ready</span>
             </div>
           </div>
         </div>
@@ -437,8 +437,7 @@ export default function HomePage() {
 
       {/* ── FOOTER ──────────────────────────────────────────────────── */}
       <footer className="px-6 py-8 text-center text-[12px] text-gray-500">
-        POSTIE — Copilot IA pour Product Owners · Aouichaoui Takwa · M2 MIAS Centrale Lille ·
-        OVHcloud · 2026
+        POSTIE — Copilot IA pour Product Owners · Aouichaoui Takwa · M2 MIAS Centrale Lille · 2026
       </footer>
     </main>
   );
