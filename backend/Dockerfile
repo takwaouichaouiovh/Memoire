@@ -17,6 +17,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY app ./app
+COPY data ./data
 RUN mkdir -p data/chroma data/docs
 
 EXPOSE 8000
