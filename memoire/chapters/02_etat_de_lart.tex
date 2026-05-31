@@ -1,0 +1,84 @@
+\chapter{État de l'art}
+\label{ch:sota}
+
+\section{Le rôle du Product Owner}
+Défini dans le \textit{Scrum Guide}~\cite{schwaber2020scrum}, le PO est
+responsable de la maximisation de la valeur produite par l'équipe via
+la gestion ordonnée du Product Backlog. Ses compétences clés couvrent
+la \emph{vision produit}, la \emph{priorisation}, la \emph{communication
+transverse} et l'\emph{acceptation} des incréments. Il interagit avec
+les parties prenantes pour collecter le besoin, avec l'équipe de
+développement pour clarifier les stories, et avec le management pour
+défendre les arbitrages.
+
+\section{Frameworks Agile}
+\begin{description}
+  \item[Scrum] Rituels (Sprint Planning, Daily, Review, Rétrospective),
+        artefacts (Product Backlog, Sprint Backlog, Incrément) et rôles
+        (PO, Scrum Master, Dev Team).
+  \item[\gls{safe}] Mise à l'échelle de Scrum sur plusieurs équipes via
+        les Program Increments et le \gls{wsjf}~\cite{leffingwell2018safe}.
+  \item[Kanban] Flux continu, limites de WIP (Work In Progress), mesure
+        du lead time et du cycle time.
+\end{description}
+
+\section{Méthodes de priorisation}
+\Cref{tab:prio-methods} compare les sept méthodes implémentées dans
+POSTIE. Chacune répond à un contexte différent~: RICE pour les
+arbitrages produit consumer, WSJF pour les contextes SAFe, MoSCoW
+pour la communication aux parties prenantes, Kano pour l'analyse de
+satisfaction, ICE pour les décisions rapides, Value/Effort pour la
+visualisation matricielle, et ML Hybrid pour combiner les signaux.
+
+\begin{table}[H]\centering\small
+\caption{Comparaison des méthodes de priorisation implémentées.}
+\label{tab:prio-methods}
+\begin{tabularx}{\linewidth}{lXXl}
+\toprule
+\textbf{Méthode} & \textbf{Principe} & \textbf{Forces} & \textbf{Limites}\\
+\midrule
+\gls{rice} & (Reach\,$\times$\,Impact\,$\times$\,Confidence)/Effort
+  & Quantitatif, populaire & Subjectivité du Reach\\
+\gls{wsjf} & (BV+TC+RR)/JobSize
+  & Adapté au flux de valeur & Estimation du Job Size\\
+\gls{moscow} & Must / Should / Could / Won't
+  & Simple, communicant & Faible granularité\\
+Kano & Basique/Performance/Delighter
+  & Centré utilisateur & Étude requise\\
+\gls{ice} & Impact\,$\times$\,Confidence\,$\times$\,Ease
+  & Rapide & Approximatif\\
+Value/Effort & Matrice 2$\times$2 & Visuel & Binaire\\
+ML~Hybrid & Blend pondéré des scores
+  & Robuste & Calibration nécessaire\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{RAG et LLMs appliqués au product management}
+Introduite par Lewis~\textit{et al.}~\cite{lewis2020rag}, l'architecture
+\gls{rag} consiste à augmenter un \gls{llm} par un système de
+récupération vectorielle. Le flux est le suivant~: (1) la requête
+utilisateur est encodée en vecteur, (2) le vector store retourne les
+$k$ chunks de documents les plus pertinents, (3) ces chunks sont
+injectés dans le prompt du LLM qui génère la réponse finale.
+
+La stratégie \gls{mmr} permet de réduire la redondance des chunks
+retournés en pénalisant les vecteurs trop similaires entre eux. Les
+approches de routage multi-modèles exploitent les compromis
+coût/latence/qualité entre différentes familles de LLMs~: un modèle
+léger pour les tâches structurées, un modèle puissant pour le
+raisonnement long.
+
+\section{Positionnement de POSTIE}
+POSTIE se distingue des outils existants (Jira Intelligence,
+ProductBoard, Aha!) par~:
+\begin{itemize}
+  \item son caractère \emph{open-source} et auto-hébergeable~;
+  \item la pluralité des algorithmes de priorisation accessibles dans
+        une même interface~;
+  \item le routage intelligent multi-modèles entre GPT-4o et
+        Mistral Large~;
+  \item la traçabilité documentaire systématique des réponses RAG~;
+  \item l'intégration native d'un Sprint Planner sous contrainte de
+        vélocité.
+\end{itemize}

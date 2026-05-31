@@ -1,0 +1,32 @@
+\begin{tikzpicture}[
+  node distance=1.2cm and 1.4cm,
+  block/.style={rectangle,draw=postieblue,thick,rounded corners=4pt,
+                fill=lightgray,minimum width=3.4cm,minimum height=1.1cm,
+                align=center,font=\small},
+  ext/.style  ={rectangle,draw=accentviolet,thick,rounded corners=4pt,
+                fill=accentviolet!10,minimum width=3.4cm,minimum height=1.1cm,
+                align=center,font=\small},
+  arr/.style  ={-{Stealth[length=3mm]},thick,postieblue}
+]
+
+\node[block] (front) {\textbf{Frontend}\\Next.js 15 + React 19\\Tailwind};
+\node[block,right=of front] (back) {\textbf{Backend API}\\FastAPI + LangChain\\Python 3.11};
+\node[block,right=of back]  (vec)  {\textbf{Vector Store}\\ChromaDB};
+
+\node[ext,below=of front]   (vercel){Vercel (CDN)};
+\node[ext,below=of back]    (render){Render (Docker)};
+\node[ext,below=of vec]     (llm)   {OpenAI GPT-4o\\Mistral Large};
+
+\draw[arr] (front)  -- node[above,font=\scriptsize]{HTTPS / JSON} (back);
+\draw[arr] (back)   -- node[above,font=\scriptsize]{MMR k=6}      (vec);
+\draw[arr] (back)   -- node[right,font=\scriptsize]{LLM API}      (llm);
+\draw[arr] (front)  -- (vercel);
+\draw[arr] (back)   -- (render);
+
+\begin{scope}[on background layer]
+  \node[draw=postieblue!30,dashed,rounded corners,inner sep=8pt,
+        fit=(front)(back)(vec),
+        label=above:{\small\bfseries Application POSTIE}] {};
+\end{scope}
+
+\end{tikzpicture}

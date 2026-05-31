@@ -1,0 +1,93 @@
+\chapter{Méthodologie Agile du projet}
+\label{ch:agile}
+
+\section{Choix de Scrum}
+Bien que développé en mode solo, le projet adopte les principes Scrum~:
+sprints fixes de deux semaines, backlog ordonné, démonstration en fin
+de sprint, rétrospective avec le tuteur académique. Ce choix répond à
+deux objectifs~: d'une part garantir une livraison incrémentale et
+testable, d'autre part éprouver \emph{de l'intérieur} la méthodologie
+que POSTIE outille.
+
+\section{Rituels appliqués au mode solo}
+\Cref{tab:rituels} montre comment chaque rituel Scrum a été adapté à
+la conduite individuelle du projet.
+
+\begin{table}[H]\centering
+\caption{Adaptation des rituels Scrum au mode solo.}
+\label{tab:rituels}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Rituel Scrum} & \textbf{Adaptation}\\
+\midrule
+Sprint Planning & Sélection du backlog + estimation en points
+                  de story (Fibonacci 1, 2, 3, 5, 8)\\
+Daily Standup   & Auto-checklist quotidienne consignée dans un
+                  journal de bord Markdown\\
+Sprint Review   & Démonstration au tuteur tous les 15 jours,
+                  avec capture d'écran et démo en live\\
+Rétrospective   & Synthèse écrite \emph{Keep / Stop / Start}
+                  alimentant le backlog du sprint suivant\\
+Refinement      & Grooming hebdomadaire du backlog, ré-estimation
+                  des stories restantes\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Backlog projet}
+\Cref{tab:backlog} présente un extrait du backlog projet, ordonné
+par sprint d'apparition.
+
+\begin{table}[H]\centering\small
+\caption{Extrait du backlog projet (sprints S1 à S6).}
+\label{tab:backlog}
+\begin{tabularx}{\linewidth}{llXl}
+\toprule
+\textbf{ID} & \textbf{Epic} & \textbf{User Story} & \textbf{Sprint}\\
+\midrule
+F1 & RAG            & En tant que PO, je veux interroger ma doc produit via un chat        & S1\\
+F2 & Priorisation   & En tant que PO, je veux comparer mon backlog selon plusieurs méthodes & S2\\
+F3 & Sprint Planner & En tant que PO, je veux planifier mon sprint sous contrainte de vélocité & S3\\
+F4 & Grooming       & En tant que PO, je veux décomposer un épic automatiquement en stories   & S4\\
+F5 & UI/UX          & En tant qu'utilisateur, je veux un mode clair/sombre accessible WCAG~AA  & S5\\
+F6 & Déploiement    & En tant qu'utilisateur, je veux accéder à POSTIE en ligne                & S6\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Suivi des sprints (S1--S6)}
+
+\subsection*{Sprint 1 --- Fondations RAG}
+\textbf{Objectif :} POC du chatbot RAG sur la documentation Scrum/SAFe.
+\textbf{Livrables :} ingestion ChromaDB, chaîne LangChain, endpoint
+\texttt{POST /api/chat}. \textbf{Burndown :} \cref{fig:burndown-s1}.
+
+\subsection*{Sprint 2 --- Priorisation v1}
+\textbf{Objectif :} implémentation de quatre algorithmes (RICE, WSJF,
+MoSCoW, ICE) et panneau de comparaison côté frontend.
+\textbf{Livrables :} module \texttt{algorithms.py}, panneau React
+\texttt{PrioritizationPanel.tsx}. \textbf{Burndown :}
+\cref{fig:burndown-s2}.
+
+\subsection*{Sprint 3 --- Sprint Planner}
+\textbf{Objectif :} sélection \emph{greedy} sous contrainte de
+vélocité, export CSV~/~Markdown. \textbf{Livrables :}
+\texttt{sprint\_planner.py}, panneau \texttt{SprintPlannerPanel.tsx}.
+
+\subsection*{Sprint 4 --- Epic Grooming et routage multi-modèles}
+\textbf{Objectif :} décomposition automatique d'épics, introduction
+de la fonction \texttt{route\_model()}, gestion conversationnelle
+multi-sessions.
+
+\subsection*{Sprint 5 --- UX, accessibilité, thèmes}
+\textbf{Objectif :} mode clair/sombre, tooltips d'aide algorithmes,
+conformité \gls{wcag}~AA sur les contrastes, restriction du scope
+conversationnel aux sujets PO.
+
+\subsection*{Sprint 6 --- Déploiement et démonstration}
+\textbf{Objectif :} mise en production (Render + Vercel), correction
+de l'avertissement de sécurité Next.js (CVE-2025-66478), démonstration
+manager. \textbf{Incidents résolus :} \emph{leak} accidentel d'une
+clé OpenAI dans \texttt{.env.example} (sanitization de l'historique
+Git), backlog vide en production (oubli du \texttt{COPY data} dans
+le Dockerfile).

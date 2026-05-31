@@ -1,0 +1,46 @@
+\chapter{Conclusion et perspectives}
+\label{ch:ccl}
+
+\section{Bilan}
+POSTIE démontre la faisabilité d'un copilote PO open-source
+articulant RAG multi-modèles et priorisation algorithmique
+multi-critères. Le projet a permis de livrer un produit fonctionnel
+en six sprints, de formaliser une démarche Agile complète et
+d'identifier les bénéfices comme les limites concrètes de l'IA
+générative appliquée au product management. La mise en production
+effective (frontend Vercel, backend Render) prouve la maturité
+suffisante du prototype pour une démonstration en condition
+réelle.
+
+\section{Perspectives}
+\begin{itemize}
+  \item Migration vers une base \textbf{Postgres} persistante
+        (Neon, free tier) pour le backlog et l'historique
+        conversationnel.
+  \item Intégration native \textbf{Jira / Linear / Azure DevOps}
+        via OAuth pour synchroniser bidirectionnellement le backlog
+        avec les outils existants de l'équipe.
+  \item Évaluation longitudinale sur une équipe produit réelle
+        (mesure de vélocité, qualité des stories, satisfaction).
+  \item Entraînement d'un classifieur dédié pour remplacer le
+        routage par heuristique.
+  \item Étude d'un mode auto-hébergé (Mistral / Llama 3) pour les
+        contextes contraints en confidentialité (santé, défense,
+        finance).
+  \item Mode multi-utilisateurs avec gestion de rôles
+        (PO, Scrum Master, Stakeholder).
+\end{itemize}
+
+\section{Apports personnels}
+Ce projet m'a permis de consolider mes compétences en architecture
+logicielle full-stack, en orchestration LLM moderne (LangChain,
+multi-modèles, RAG), en pilotage Agile autonome d'un produit du
+\gls{mvp} jusqu'à la mise en production, et en communication
+technique vulgarisée envers les parties prenantes non techniques.
+
+Au-delà des compétences techniques, POSTIE m'a confronté aux
+arbitrages réels du métier de PO~: prioriser sous incertitude,
+défendre des choix devant un manager, livrer en respectant un
+échéancier serré. Cette \emph{double posture} --- développer
+l'outil tout en étant son utilisateur cible --- a constitué l'un
+des apports pédagogiques majeurs de ce mémoire.

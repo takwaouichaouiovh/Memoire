@@ -1,0 +1,64 @@
+\chapter{Extraits de code commentés}
+\label{anx:code}
+
+\section{Implémentation de RICE}
+\begin{lstlisting}[caption={Scoring RICE normalisé sur [0;100].}]
+def score_rice(f: Feature) -> float:
+    """RICE = (Reach * Impact * Confidence) / Effort."""
+    raw = (f.reach * f.impact * f.confidence) / max(f.effort, 0.1)
+    return min(100.0, raw * 1.5)  # normalisation empirique
+\end{lstlisting}
+
+\section{Implémentation de WSJF}
+\begin{lstlisting}[caption={Scoring WSJF (SAFe).}]
+def score_wsjf(f: Feature) -> float:
+    """WSJF = Cost of Delay / Job Size."""
+    cod = f.business_value + f.time_criticality + f.risk_reduction
+    raw = cod / max(f.job_size, 0.1)
+    return min(100.0, raw * 4.0)
+\end{lstlisting}
+
+\section{Implémentation d'ICE}
+\begin{lstlisting}[caption={Scoring ICE.}]
+def score_ice(f: Feature) -> float:
+    """ICE = Impact * Confidence * Ease, normalise sur [0;100]."""
+    raw = f.impact * f.confidence * f.ease
+    return min(100.0, raw * 2.5)
+\end{lstlisting}
+
+\section{Sprint Planner glouton}
+\begin{lstlisting}[caption={Algorithme glouton du Sprint Planner.}]
+def plan_sprint(features, velocity, algorithm):
+    scored = prioritize(features, algorithm)
+    selected, deferred = [], []
+    cumulative = 0.0
+    for rank, item in enumerate(scored, start=1):
+        if cumulative + item.effort <= velocity:
+            selected.append({"rank": rank, **item.dict()})
+            cumulative += item.effort
+        else:
+            deferred.append({"rank": rank, **item.dict()})
+    utilization = round(100 * cumulative / velocity, 1)
+    return {"selected": selected, "deferred": deferred,
+            "utilization": utilization, "velocity": velocity}
+\end{lstlisting}
+
+\section{Construction de la chaîne RAG (LangChain)}
+\begin{lstlisting}[caption={Pipeline RAG avec mémoire conversationnelle.}]
+def build_rag_chain(model="gpt-4o", session_id="default"):
+    llm         = get_llm(model)
+    vectorstore = get_vectorstore()
+    retriever   = vectorstore.as_retriever(
+        search_type="mmr",
+        search_kwargs={"k": 6, "fetch_k": 20},
+    )
+    memory = ConversationBufferWindowMemory(
+        k=10, memory_key="chat_history",
+        return_messages=True, output_key="answer",
+    )
+    return ConversationalRetrievalChain.from_llm(
+        llm=llm, retriever=retriever, memory=memory,
+        combine_docs_chain_kwargs={"prompt": PO_PROMPT},
+        return_source_documents=True,
+    )
+\end{lstlisting}

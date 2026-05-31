@@ -1,0 +1,109 @@
+\chapter{Implémentation}
+\label{ch:impl}
+
+\section{Backend FastAPI}
+Le backend expose une API REST documentée automatiquement via
+OpenAPI à l'URL \texttt{/docs}. \Cref{tab:endpoints} résume les
+principaux endpoints.
+
+\begin{table}[H]\centering\small
+\caption{Endpoints principaux de l'API POSTIE.}
+\label{tab:endpoints}
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Méthode} & \textbf{Endpoint} & \textbf{Rôle}\\
+\midrule
+POST & /api/chat & RAG conversationnel\\
+POST & /api/prioritization & Scoring multi-algorithmes\\
+POST & /api/prioritization/sprint-plan & Planification de sprint\\
+POST & /api/agents/groom & Décomposition d'un épic en stories\\
+POST & /api/documents/upload & Ingestion documentaire\\
+GET  & /api/sessions/\{id\} & Historique conversationnel\\
+GET  & /health & Sonde de vivacité\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Moteur RAG}
+La chaîne RAG repose sur LangChain avec mémoire conversationnelle
+glissante. Les paramètres clés (\cref{lst:rag-params}) sont issus
+d'expérimentations comparatives menées en sprint~1.
+
+\begin{lstlisting}[caption={Paramètres du moteur RAG.},label={lst:rag-params}]
+chunk_size  = 800   # tokens par chunk
+overlap     = 120   # chevauchement entre chunks
+retrieval   = "mmr" # Maximal Marginal Relevance
+k           = 6     # chunks retenus
+fetch_k     = 20    # chunks pre-filtres
+mem_window  = 10    # tours conversationnels conserves
+\end{lstlisting}
+
+\section{Routage multi-modèles}
+La fonction \texttt{route\_model()} (\cref{lst:routage}) oriente
+chaque requête vers GPT-4o (raisonnement, génération longue) ou
+Mistral Large (scoring structuré, classification). Le routage est
+basé sur la détection de mots-clés métiers dans la requête.
+
+\begin{lstlisting}[caption={Routage multi-modèles simplifié.},label={lst:routage}]
+SCORING_KW = ["score", "priorit", "rice", "wsjf",
+              "moscow", "rank", "classif", "evalue", "noter"]
+
+def route_model(query: str) -> ModelName:
+    q = query.lower()
+    if any(kw in q for kw in SCORING_KW):
+        return "mistral-large"
+    return "gpt-4o"
+\end{lstlisting}
+
+\section{Moteur de priorisation}
+Chaque algorithme produit un score normalisé sur $[0;100]$. Le
+module expose une fonction unique \texttt{prioritize()} qui
+dispatche sur la fonction de scoring choisie et retourne la liste
+triée. La normalisation commune permet des comparaisons
+inter-algorithmes (cf. chapitre~\ref{ch:eval}).
+
+\section{Sprint Planner}
+L'algorithme suit une stratégie gloutonne sous contrainte
+(\cref{lst:sprint})~:
+\begin{enumerate}
+  \item Trier les features par score décroissant selon
+        l'algorithme choisi.
+  \item Sélectionner tant que la somme cumulée d'effort
+        $\leq$ vélocité.
+  \item Renvoyer les listes \texttt{selected} et \texttt{deferred}
+        avec le taux d'utilisation calculé.
+\end{enumerate}
+
+\begin{lstlisting}[caption={Algorithme glouton du Sprint Planner.},label={lst:sprint}]
+def plan_sprint(features, velocity, algorithm):
+    scored = prioritize(features, algorithm)
+    selected, deferred = [], []
+    cumulative = 0.0
+    for rank, item in enumerate(scored, start=1):
+        if cumulative + item.effort <= velocity:
+            selected.append({"rank": rank, **item.dict()})
+            cumulative += item.effort
+        else:
+            deferred.append({"rank": rank, **item.dict()})
+    utilization = round(100 * cumulative / velocity, 1)
+    return {"selected": selected, "deferred": deferred,
+            "utilization": utilization, "velocity": velocity}
+\end{lstlisting}
+
+\section{Frontend Next.js}
+L'application est organisée modulaire ment par domaine~:
+\texttt{components/chat/}, \texttt{components/priority/},
+\texttt{components/documents/}, \texttt{components/retro/},
+\texttt{components/layout/}. L'état applicatif est géré uniquement
+via les hooks React natifs (\texttt{useState}, \texttt{useReducer}),
+sans librairie d'état globale, pour limiter la complexité.
+
+\section{CI/CD}
+\begin{itemize}
+  \item Push sur GitHub \texttt{main} $\rightarrow$ build Vercel
+        (frontend, $\approx 1$\,min).
+  \item Push sur GitHub \texttt{main} $\rightarrow$ build Docker
+        Render (backend, $\approx 4$\,min).
+  \item Vérifications locales avant push~: \texttt{npm run build}
+        et \texttt{pytest}.
+\end{itemize}

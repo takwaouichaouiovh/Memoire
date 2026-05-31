@@ -1,0 +1,48 @@
+\chapter{Discussion et limites}
+\label{ch:disc}
+
+\section{Limites de l'IA générative}
+Malgré les garde-fous du RAG, les LLMs peuvent produire des
+\emph{hallucinations} sur des questions très spécifiques absentes
+du contexte. Le mode \og refus poli \fg{} hors sujet (cuisine,
+météo, sport, etc.) a été ajouté en sprint~6 pour cantonner POSTIE
+à son périmètre PO et adjacents (technique, communication d'équipe,
+documentation). Cette restriction garantit un comportement
+professionnel mais n'élimine pas le risque de réponse erronée à
+l'intérieur du périmètre métier.
+
+\section{Coût opérationnel et dépendance API}
+La dépendance aux API OpenAI et Mistral entraîne un coût variable
+proportionnel au volume d'utilisation. Au-delà du coût direct, cette
+dépendance pose la question de la \emph{vendor lock-in} et de la
+continuité de service en cas de panne ou de changement tarifaire.
+Une étude d'alternatives auto-hébergées (Mistral 7B, Llama 3) est
+prévue en perspective.
+
+\section{Enjeux de confidentialité}
+L'envoi de documents internes à des LLMs hébergés impose une
+vigilance RGPD~: \textit{redaction} des PII avant ingestion,
+signature de contrats DPA (\textit{Data Processing Agreement}) avec
+les fournisseurs, ou bascule sur une alternative on-premise. POSTIE
+documente explicitement ces enjeux pour l'utilisateur final dans
+sa fiche produit.
+
+\section{Limites méthodologiques}
+L'évaluation a été menée sur un panel restreint de trois PO et sur
+une période courte de deux semaines. Une étude longitudinale en
+équipe réelle (sur un trimestre, avec mesure de la vélocité avant
+et après adoption) serait nécessaire pour mesurer l'impact concret
+sur la productivité et la qualité du backlog.
+
+\section{Limites techniques résiduelles}
+\begin{itemize}
+  \item Le free tier Render impose un \emph{cold start} de
+        $\sim$30~secondes après 15~minutes d'inactivité.
+  \item L'absence de disque persistant en free tier impose une
+        re-ingestion documentaire après chaque redeploy
+        (résolu en sprint~6 par copie du backlog initial dans
+        l'image Docker).
+  \item Le routage multi-modèles est basé sur des heuristiques de
+        mots-clés~; un classifieur entraîné apporterait
+        probablement de meilleurs résultats.
+\end{itemize}

@@ -1,0 +1,58 @@
+\chapter{Évaluation}
+\label{ch:eval}
+
+\section{Protocole d'évaluation}
+L'évaluation porte sur quatre dimensions~:
+\begin{enumerate}
+  \item \textbf{Pertinence RAG :} taux de citation des sources sur
+        un benchmark interne de 50 questions PO.
+  \item \textbf{Cohérence inter-algorithmes :} corrélation de
+        Spearman des rangs sur un échantillon de 30 features.
+  \item \textbf{Performance :} latence p50 et p95 par endpoint,
+        mesurée en local et en production.
+  \item \textbf{Coût :} tokens consommés par session moyenne,
+        traduits en coût opérationnel.
+\end{enumerate}
+
+\section{Résultats quantitatifs}
+\Cref{tab:results} synthétise les principales mesures réalisées.
+Les valeurs marquées \emph{(à compléter)} dépendent du contexte
+final d'évaluation.
+
+\begin{table}[H]\centering\small
+\caption{Synthèse des mesures d'évaluation.}
+\label{tab:results}
+\begin{tabularx}{\linewidth}{lXl}
+\toprule
+\textbf{Dimension}           & \textbf{Indicateur}                       & \textbf{Valeur}\\
+\midrule
+Pertinence RAG               & Taux de citation des sources               & \emph{à compléter}\\
+                             & Score de pertinence (1--5, panel PO)       & \emph{à compléter}\\
+Cohérence algorithmes        & Spearman RICE vs WSJF                      & \emph{à compléter}\\
+                             & Spearman ICE vs RICE                       & \emph{à compléter}\\
+Performance                  & Latence p50 \texttt{/api/chat}             & \emph{à compléter}\,ms\\
+                             & Latence p95 \texttt{/api/chat}             & \emph{à compléter}\,ms\\
+Coût                         & Tokens moyens par session                  & \emph{à compléter}\\
+                             & Coût moyen par session (USD)               & \emph{à compléter}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Captures d'écran}
+\Cref{fig:landing,fig:chat,fig:prio,fig:sprint} (annexe~A)
+illustrent les principaux écrans de l'application en production.
+
+\section{Retour utilisateur qualitatif}
+Un panel de trois Product Owners industriels a testé POSTIE pendant
+deux semaines. Les retours qualitatifs ont mis en avant~:
+\begin{itemize}
+  \item la valeur ajoutée du chatbot pour la rédaction rapide de
+        \textit{user stories} et de critères d'acceptation~;
+  \item la pertinence de l'export Markdown du sprint plan pour les
+        revues d'équipe~;
+  \item l'utilité du sourcing systématique pour défendre les
+        arbitrages devant les parties prenantes.
+\end{itemize}
+Les axes d'amélioration cités~: intégration directe avec Jira,
+support multilingue plus large, et persistance des sessions
+au-delà du redéploiement.

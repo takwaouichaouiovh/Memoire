@@ -1,0 +1,84 @@
+\chapter{Conception et architecture}
+\label{ch:archi}
+
+\section{Architecture globale}
+POSTIE suit une architecture trois-tiers strictement découplée
+(\cref{fig:archi})~: un frontend Next.js servi par Vercel, un backend
+FastAPI conteneurisé sur Render, et un vector store ChromaDB
+embarqué dans le conteneur backend. Les modèles de langage GPT-4o
+et Mistral Large sont consommés via leurs API HTTPS respectives.
+
+\begin{figure}[H]\centering
+\input{figures/architecture}
+\caption{Architecture globale de POSTIE.}
+\label{fig:archi}
+\end{figure}
+
+\section{Stack technique et justification}
+\Cref{tab:stack} récapitule les choix technologiques majeurs et leur
+justification.
+
+\begin{table}[H]\centering\small
+\caption{Stack technique et justification des choix.}
+\label{tab:stack}
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+\textbf{Couche}      & \textbf{Technologie}     & \textbf{Justification}\\
+\midrule
+Frontend             & Next.js 15, React 19, TS & SSR, écosystème mature, typage strict\\
+Backend              & FastAPI 0.115            & Async natif, typage Pydantic, OpenAPI auto\\
+Orchestration LLM    & LangChain 0.3            & Chaînes RAG prêtes, mémoire conversationnelle\\
+Vector store         & ChromaDB 0.5             & Embarqué, persistant, simple à déployer\\
+Embeddings           & text-embedding-3-small   & Rapport coût/qualité optimal\\
+LLM principal        & GPT-4o                   & Raisonnement, génération longue\\
+LLM secondaire       & Mistral Large            & Scoring structuré, sortie JSON\\
+Déploiement front    & Vercel                   & Auto-deploy GitHub, CDN, gratuit\\
+Déploiement back     & Render                   & Docker, free tier, disque persistant\\
+Contrôle de version  & Git + GitHub             & Workflow trunk-based, CI/CD intégré\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Schéma de données}
+Les features du backlog sont représentées par le modèle Pydantic
+\texttt{Feature} (\cref{lst:feature}) qui agrège l'ensemble des
+critères nécessaires aux sept algorithmes de priorisation.
+
+\begin{lstlisting}[caption={Modèle Pydantic Feature (extrait).},label={lst:feature}]
+class Feature(BaseModel):
+    id: str
+    name: str
+    description: str
+    epic: str
+    tags: list[str]
+    # Critères RICE
+    reach: float
+    impact: float
+    confidence: float
+    effort: float
+    # Critères WSJF
+    business_value: float
+    time_criticality: float
+    risk_reduction: float
+    job_size: float
+    # Critères ICE / Value-Effort
+    ease: float
+    # Classifications
+    kano_category: Literal["basic", "performance", "delighter"]
+    moscow: Literal["must", "should", "could", "wont"]
+\end{lstlisting}
+
+\section{Sécurité et déploiement}
+\begin{itemize}
+  \item Clés API injectées uniquement par variables d'environnement
+        (jamais commitées dans le dépôt).
+  \item \gls{cors} restreint à une whitelist explicite plus une regex
+        \texttt{*.vercel.app} pour les previews et
+        \texttt{localhost:*} pour le développement local.
+  \item Audit \texttt{npm audit} et \texttt{pip-audit} avant chaque
+        release.
+  \item Sanitization de l'historique Git après détection d'un
+        \emph{leak} accidentel d'une clé OpenAI (sprint 6).
+  \item Mise à jour Next.js 15.0.3~$\rightarrow$~15.5.18 pour
+        corriger la CVE-2025-66478 bloquant le déploiement Vercel.
+\end{itemize}

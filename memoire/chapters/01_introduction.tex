@@ -1,0 +1,47 @@
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{Contexte}
+Dans un environnement produit toujours plus rapide, le \gls{po} joue un
+rôle pivot entre la stratégie business, l'équipe de développement et la
+voix de l'utilisateur. Ses tâches récurrentes --- rédaction de
+\textit{user stories}, grooming d'épics, priorisation du backlog,
+planification de sprint --- exigent à la fois rigueur méthodologique et
+capacité d'arbitrage sous incertitude. La généralisation des modèles
+de langage de grande taille (\gls{llm}) ouvre la voie à une nouvelle
+classe d'outils d'aide à la décision capables d'\emph{augmenter}
+l'expertise du PO, sans s'y substituer.
+
+\section{Problématique}
+Ce mémoire s'articule autour de la question suivante :
+\begin{quote}\itshape
+Dans quelle mesure une architecture \gls{rag} multi-modèles couplée
+à des algorithmes de priorisation classiques peut-elle assister un
+Product Owner dans ses décisions opérationnelles, tout en préservant
+la traçabilité des recommandations et la maîtrise de l'humain~?
+\end{quote}
+
+\section{Objectifs}
+\begin{enumerate}
+  \item Concevoir une architecture logicielle modulaire séparant la
+        couche RAG, la couche de priorisation et l'interface.
+  \item Implémenter sept algorithmes de priorisation issus de la
+        littérature Agile et les normaliser sur une échelle commune.
+  \item Démontrer la valeur d'un routage multi-modèles
+        (GPT-4o~/~Mistral Large) selon la nature de la tâche.
+  \item Garantir la traçabilité par citation systématique des
+        sources documentaires.
+  \item Livrer un produit utilisable en démonstration réelle, déployé
+        en production sur Vercel et Render.
+\end{enumerate}
+
+\section{Plan du mémoire}
+Le chapitre~\ref{ch:sota} présente l'état de l'art du rôle de PO,
+des frameworks Agile, des méthodes de priorisation et des
+architectures RAG. Le chapitre~\ref{ch:agile} détaille la
+méthodologie Scrum appliquée au projet. Les chapitres~\ref{ch:archi}
+et~\ref{ch:impl} décrivent respectivement la conception et
+l'implémentation. Le chapitre~\ref{ch:eval} présente l'évaluation
+quantitative et qualitative de POSTIE. Le chapitre~\ref{ch:disc}
+discute les limites observées. Enfin, le chapitre~\ref{ch:ccl}
+conclut et propose des perspectives.

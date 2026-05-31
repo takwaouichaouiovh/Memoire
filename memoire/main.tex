@@ -1,0 +1,139 @@
+% =============================================================================
+%  POSTIE — Mémoire M2 MIAS Centrale Lille
+%  Compilation : pdflatex main && makeglossaries main && pdflatex main && pdflatex main
+% =============================================================================
+\documentclass[12pt,a4paper,oneside]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+\usepackage[a4paper,margin=2.5cm,headheight=15pt]{geometry}
+\usepackage{setspace}\onehalfspacing
+\usepackage{fancyhdr}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\nouppercase{\leftmark}}\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\usepackage{xcolor}
+\definecolor{postieblue}{HTML}{3F4AB4}
+\definecolor{accentviolet}{HTML}{7C3AED}
+\definecolor{lightgray}{HTML}{F1F5F9}
+
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{postieblue}}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+\usepackage{graphicx}\graphicspath{{figures/}}
+\usepackage{float}
+\usepackage{caption}\captionsetup{font=small,labelfont=bf}
+\usepackage{booktabs,array,longtable,multirow,tabularx}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.geometric,arrows.meta,fit,backgrounds,calc}
+
+\usepackage[colorlinks=true,linkcolor=postieblue,
+            urlcolor=postieblue,citecolor=postieblue]{hyperref}
+\usepackage{cleveref}
+
+\usepackage{listings}
+\lstdefinestyle{pythonstyle}{
+  language=Python,basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{postieblue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{accentviolet},
+  numbers=left,numberstyle=\tiny\color{gray},
+  frame=single,backgroundcolor=\color{lightgray},
+  showstringspaces=false,breaklines=true,captionpos=b,
+  inputencoding=utf8,extendedchars=true,
+  literate=%
+    {é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {ë}{{\"e}}1
+    {à}{{\`a}}1 {â}{{\^a}}1 {ä}{{\"a}}1
+    {ù}{{\`u}}1 {û}{{\^u}}1 {ü}{{\"u}}1
+    {ô}{{\^o}}1 {ö}{{\"o}}1 {î}{{\^i}}1 {ï}{{\"i}}1
+    {ç}{{\c{c}}}1 {É}{{\'E}}1}
+\lstset{style=pythonstyle}
+
+\usepackage[acronym,toc,nopostdot]{glossaries}
+\makeglossaries
+\input{acronyms}
+
+\begin{document}
+
+\begin{titlepage}\centering
+\vspace*{2cm}
+{\Huge\bfseries\color{postieblue} POSTIE}\\[0.6em]
+{\Large\bfseries Copilote IA pour Product Owners}\\[3em]
+\rule{0.6\textwidth}{0.5pt}\\[1em]
+{\Large\itshape Conception et déploiement d'une architecture RAG
+multi-modèles et priorisation algorithmique du backlog produit}\\[1em]
+\rule{0.6\textwidth}{0.5pt}\\[4em]
+{\large Mémoire de fin d'études}\\[0.5em]
+{\large Master 2 MIAS --- Centrale Lille}\\[3em]
+{\large\bfseries Aouichaoui Takwa}\\[2em]
+\vfill
+{\large Année universitaire 2025--2026}
+\end{titlepage}
+
+\chapter*{Résumé}\addcontentsline{toc}{chapter}{Résumé}
+POSTIE est un copilote intelligent conçu pour assister les Product
+Owners dans la gestion quotidienne de leur backlog produit. Il combine
+une architecture \textbf{RAG} (Retrieval-Augmented Generation)
+multi-modèles --- GPT-4o pour le raisonnement et Mistral Large pour les
+tâches de scoring structuré --- à un moteur de priorisation
+multi-critères implémentant sept frameworks issus de l'état de l'art
+Agile (RICE, WSJF, MoSCoW, Kano, ICE, Value/Effort, ML Hybrid). Bâti
+sur FastAPI, LangChain, ChromaDB et Next.js, et développé selon une
+méthodologie Agile Scrum en six sprints, POSTIE industrialise la
+rédaction de \textit{user stories}, le grooming d'épics et la
+planification de sprint, tout en garantissant la traçabilité des
+recommandations par le sourcing systématique des réponses.
+
+\vspace{1em}\noindent\textbf{Mots-clés :} Product Owner, Agile, RAG,
+LLM, GPT-4o, Mistral, priorisation, RICE, WSJF, FastAPI, Next.js.
+
+\chapter*{Abstract}\addcontentsline{toc}{chapter}{Abstract}
+POSTIE is an AI copilot designed to assist Product Owners in the daily
+management of their product backlog. It combines a multi-model
+Retrieval-Augmented Generation (RAG) architecture with a multi-criteria
+prioritization engine implementing seven state-of-the-art Agile
+frameworks. Built on FastAPI, LangChain, ChromaDB and Next.js and
+developed using an Agile Scrum methodology over six sprints, POSTIE
+streamlines user-story writing, epic grooming and sprint planning.
+
+\vspace{1em}\noindent\textbf{Keywords:} Product Owner, Agile, RAG, LLM,
+GPT-4o, Mistral, prioritization, FastAPI, Next.js.
+
+\chapter*{Remerciements}\addcontentsline{toc}{chapter}{Remerciements}
+Je tiens à exprimer ma gratitude à mon tuteur académique pour son
+accompagnement, ainsi qu'à mon entreprise d'accueil pour la confiance
+accordée. Mes remerciements vont également aux Product Owners qui ont
+testé POSTIE et partagé leurs retours.
+
+\tableofcontents
+\listoffigures
+\listoftables
+\printglossary[type=\acronymtype,title={Liste des acronymes}]
+
+\input{chapters/01_introduction}
+\input{chapters/02_etat_de_lart}
+\input{chapters/03_methodologie_agile}
+\input{chapters/04_architecture}
+\input{chapters/05_implementation}
+\input{chapters/06_evaluation}
+\input{chapters/07_discussion}
+\input{chapters/08_conclusion}
+
+\appendix
+\input{annexes/A_screenshots}
+\input{annexes/B_burndowns}
+\input{annexes/C_code}
+
+\bibliographystyle{plain}
+\bibliography{biblio}
+\addcontentsline{toc}{chapter}{Bibliographie}
+
+\end{document}
