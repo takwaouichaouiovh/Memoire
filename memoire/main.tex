@@ -38,6 +38,11 @@
 \usepackage[colorlinks=true,linkcolor=postieblue,
             urlcolor=postieblue,citecolor=postieblue]{hyperref}
 \usepackage{cleveref}
+% Permet a cleveref de reconnaitre les blocs de code (listings)
+\crefname{listing}{listing}{listings}
+\Crefname{listing}{Listing}{Listings}
+\crefname{lstlisting}{listing}{listings}
+\Crefname{lstlisting}{Listing}{Listings}
 
 \usepackage{listings}
 \lstdefinestyle{pythonstyle}{
