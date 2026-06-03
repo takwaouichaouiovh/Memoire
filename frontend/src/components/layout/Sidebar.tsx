@@ -1,10 +1,12 @@
 ﻿"use client";
 
 import {
+  Bot,
   CalendarClock,
   ChevronRight,
   ClipboardList,
   FileText,
+  Github,
   Home,
   ListChecks,
   MessageSquareText,
@@ -28,8 +30,10 @@ const NAV: { key: WorkspaceView; label: string; icon: LucideIcon; hint?: string 
   { key: "chat", label: "Chat", icon: MessageSquareText, hint: "Ask the assistant" },
   { key: "prioritization", label: "Prioritization", icon: ListChecks, hint: "Score the backlog" },
   { key: "sprint", label: "Sprint Planner", icon: CalendarClock, hint: "Knapsack capacity" },
+  { key: "supervisor", label: "Supervisor", icon: Bot, hint: "Multi-agent orchestrator" },
   { key: "retro", label: "Retrospective", icon: ClipboardList, hint: "Analyze sprint notes" },
   { key: "documents", label: "Documents", icon: FileText, hint: "Knowledge base" },
+  { key: "integrations", label: "Integrations", icon: Github, hint: "GitHub import/export" },
 ];
 
 export default function Sidebar({ active, onSelect, backendOnline }: SidebarProps) {

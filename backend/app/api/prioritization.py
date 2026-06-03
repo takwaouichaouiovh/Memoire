@@ -12,6 +12,11 @@ from app.prioritization.algorithms import (
     score_rice, score_wsjf, score_ice, score_kano, score_value_effort, score_moscow,
 )
 from app.prioritization.sprint_planner import SprintPlan, SprintPlanRequest, plan_sprint
+from app.prioritization.dependency_planner import (
+    DependencyPlanRequest,
+    DependencySprintPlan,
+    plan_sprint_with_dependencies,
+)
 from app.models.api import BacklogDeleteResponse, BacklogListResponse, BacklogSummaryResponse, QuickScoreResponse
 
 router = APIRouter()
@@ -105,3 +110,9 @@ async def delete_backlog_feature(feature_id: str):
 async def sprint_plan(req: SprintPlanRequest):
     """Knapsack-based sprint composition: maximize score within velocity budget."""
     return plan_sprint(req)
+
+
+@router.post("/sprint-plan-deps", response_model=DependencySprintPlan)
+async def sprint_plan_with_deps(req: DependencyPlanRequest):
+    """Precedence-constrained sprint composition (ILP or topological greedy)."""
+    return plan_sprint_with_dependencies(req)

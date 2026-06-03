@@ -47,6 +47,8 @@ export function useKeyboardShortcuts(onSelect: (view: WorkspaceView) => void) {
         s: "sprint",
         r: "retro",
         d: "documents",
+        a: "supervisor",
+        i: "integrations",
         ",": "settings",
       };
       const target = map[e.key.toLowerCase()];

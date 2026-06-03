@@ -8,8 +8,20 @@ from fastapi import APIRouter, HTTPException
 from app.agents.assistant import AssistantRequest, AssistantResponse, clear_assistant_session, run_assistant
 from app.agents.grooming import GroomingRequest, GroomingResponse, groom_epic
 from app.agents.retro import RetroRequest, RetroResponse, analyze_retro
+from app.agents.supervisor import SupervisorRequest, SupervisorResponse, run_supervisor
 
 router = APIRouter()
+
+
+@router.post("/supervisor", response_model=SupervisorResponse)
+async def api_supervisor(req: SupervisorRequest):
+    """Multi-agent supervisor: groom → prioritize → plan → summarize."""
+    try:
+        return run_supervisor(req)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Supervisor failed: {exc}") from exc
 
 
 @router.post("/groom-epic", response_model=GroomingResponse)

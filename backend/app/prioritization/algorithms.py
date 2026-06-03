@@ -74,6 +74,16 @@ class Feature(BaseModel):
     dependency_count: int = Field(default=0, ge=0)
     user_requests: int = Field(default=0, ge=0)
 
+    # Dependency graph: ids of features that MUST be selected before this one.
+    # Used by the dependency-aware sprint planner (ILP / topological heuristic).
+    depends_on: list[str] = Field(default_factory=list)
+
+    # External tracker linkage (e.g. GitHub issue id, Jira key) — used by
+    # the integrations layer to keep imports idempotent.
+    external_source: str = Field(default="", description="e.g. 'github', 'jira', ''")
+    external_id: str = Field(default="", description="External issue id / key, empty if local-only")
+    external_url: str = Field(default="", description="Direct link back to the source issue")
+
 
 class ScoredFeature(BaseModel):
     feature: Feature
@@ -136,6 +146,8 @@ def score_rice(f: Feature) -> float:
     RICE v2: (reach × impact × β_weight(confidence)) / log₂(effort+1)
     × bayesian_demand × strategic_mult. Normalized to 0–100.
     """
+    # The goal is not to reproduce the raw RICE formula literally, but to
+    # turn it into a more stable ranking signal for Product Owner decisions.
     beta_w      = _beta_confidence_weight(f.confidence)
     log_effort  = math.log2(f.effort + 1)
     raw         = (f.reach * f.impact * beta_w) / max(log_effort, 0.1)
@@ -333,6 +345,9 @@ def score_ai_blend(features: list[Feature]) -> dict[str, dict]:
     AI Blend v2 — Calibrated dual-model ensemble (GPT-4o + Mistral).
     Confidence-weighted averaging. Fallback: weighted avg(RICE×0.45, WSJF×0.55).
     """
+    # The LLMs score the full backlog independently, then we blend their
+    # outputs. This keeps the result explainable and lets each model keep its
+    # own calibration.
     features_data = [
         {
             "id":                  f.id,
@@ -410,6 +425,8 @@ def _generate_bootstrap_data(n: int = 500, seed: int = 42) -> tuple[np.ndarray, 
     Generate training data from the mathematical relationships of the other algorithms.
     Label formula: 0.30×rice + 0.30×wsjf + 0.15×ice + 0.15×kano + 0.10×ve + moscow_bonus + dep_bonus
     """
+    # This is intentionally synthetic: it creates a controlled training set
+    # when no real historical backlog annotations are available yet.
     rng = np.random.default_rng(seed)
     rows_X, rows_y = [], []
     moscow_map = {0: "must", 1: "should", 2: "could", 3: "wont"}
@@ -512,6 +529,8 @@ def prioritize(
     algorithm: AlgoName = "rice",
     use_ai_blend: bool = False,
 ) -> list[ScoredFeature]:
+    # We always compute the full score set so the UI can compare algorithms
+    # instantly without recomputing from scratch on each tab change.
     if not features:
         return []
 

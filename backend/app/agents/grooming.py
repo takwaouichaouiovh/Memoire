@@ -103,6 +103,8 @@ class _State(TypedDict, total=False):
 # ── Nodes ────────────────────────────────────────────────────────────────────
 
 def _node_titles(state: _State) -> _State:
+    # Stage 1: generate short user-story titles to keep the downstream prompt
+    # focused and reduce the chance of overlong stories.
     llm = get_structured_llm(_TitleList, model="gpt-4o")
     result: _TitleList = llm.invoke(
         f"Generate {state['num_stories']} concise user-story titles for this epic:\n"
@@ -116,6 +118,7 @@ def _node_titles(state: _State) -> _State:
 
 
 def _node_criteria(state: _State) -> _State:
+    # Stage 2: expand each title into a concrete story with acceptance criteria.
     llm = get_structured_llm(_StoriesWithCriteria, model="gpt-4o")
     titles = [s.title for s in state["stories"]]
 
@@ -177,6 +180,7 @@ For each issue, return: story_index (0-based), problem, suggestion (one short se
 
 
 def _node_validate(state: _State) -> _State:
+    # Stage 3: validate the generated stories against INVEST-style quality rules.
     llm = get_structured_llm(_Validation, model="gpt-4o")
     payload = [
         {
@@ -206,6 +210,7 @@ def _node_validate(state: _State) -> _State:
 
 
 def _route_after_validate(state: _State) -> str:
+    # Retry only if the validator found real issues and we still have budget.
     retries = state.get("retry_count", 0)
     issues = state.get("feedback") or []
     trace = state.get("trace", [])
@@ -226,6 +231,7 @@ def _route_after_validate(state: _State) -> str:
 
 
 def _node_rice(state: _State) -> _State:
+    # Stage 4: estimate effort and value inputs after the story text is stable.
     llm = get_structured_llm(_RiceList, model="mistral-large")
     payload = [
         {"title": s.title, "as_a": s.as_a, "i_want": s.i_want, "so_that": s.so_that}

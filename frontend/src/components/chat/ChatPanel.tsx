@@ -36,6 +36,7 @@ const PROMPT_SUGGESTIONS = [
 ];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
+// These small render helpers keep the message loop readable.
 
 function SourceChips({ sources }: { sources: Source[] }) {
   if (!sources?.length) return null;

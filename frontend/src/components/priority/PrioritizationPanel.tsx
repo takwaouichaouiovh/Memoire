@@ -115,6 +115,8 @@ import {
 } from "../../lib/api";
 
 // ── Demo data ─────────────────────────────────────────────────────────────────
+// These seeded features make the dashboard useful on first load, even before
+// the user imports a real backlog.
 
 const DEMO_FEATURES: Feature[] = [
   { id: "f1", name: "AI sprint auto-planner", description: "As a PO, I want sprint proposals so that planning is faster.", context: "Goal: reduce sprint planning meeting time by 30%.", reach: 8.2, impact: 9, confidence: 0.8, effort: 5, business_value: 9, time_criticality: 8, risk_reduction: 6, job_size: 5, ease: 4, kano_category: "delighter", satisfaction_gain: 9, dissatisfaction_risk: 3, moscow: "must", tags: ["domain:ai", "team:product"], epic: "EPIC-AI-031", strategic_alignment: 9, dependency_count: 2, user_requests: 80 },
@@ -231,6 +233,8 @@ function hashTagColor(tag: string): string {
 }
 
 function normalizeTags(tagsText: string): string[] {
+  // Normalization keeps tag chips stable and avoids accidental duplicates such
+  // as "AI" vs "ai" or trailing spaces copied from user input.
   return tagsText
     .split(",")
     .map((t) => t.trim().toLowerCase())
@@ -243,6 +247,8 @@ function normalizeTags(tagsText: string): string[] {
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
+// The panel stays large, so the small reusable pieces are kept local to avoid
+// scattering the presentation logic across many files.
 
 function SliderField({
   label,

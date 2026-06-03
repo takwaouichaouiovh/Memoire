@@ -5,8 +5,10 @@ import { CalendarClock, Download, FileText, Loader2, RefreshCw, Sparkles, Trendi
 import {
   PrioritizationBacklogFeature,
   SprintPlan,
+  DependencySprintPlan,
   fetchPrioritizationBacklog,
   planSprint,
+  planSprintWithDependencies,
 } from "../../lib/api";
 
 const ALGOS = [
@@ -29,9 +31,18 @@ export default function SprintPlannerPanel() {
     if (typeof window === "undefined") return "rice";
     return window.localStorage.getItem("postie:sprint:algo") || "rice";
   });
-  const [plan, setPlan] = useState<SprintPlan | null>(null);
+  const [plan, setPlan] = useState<SprintPlan | DependencySprintPlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [useDeps, setUseDeps] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("postie:sprint:deps") === "1";
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("postie:sprint:deps", useDeps ? "1" : "0");
+  }, [useDeps]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -64,7 +75,9 @@ export default function SprintPlannerPanel() {
     setLoading(true);
     setError(null);
     try {
-      const result = await planSprint(backlog, velocity, algorithm);
+      const result = useDeps
+        ? await planSprintWithDependencies(backlog, velocity, algorithm, "auto")
+        : await planSprint(backlog, velocity, algorithm);
       setPlan(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sprint planning failed");
@@ -245,6 +258,14 @@ export default function SprintPlannerPanel() {
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Plan sprint
           </button>
+          <label className="flex items-center gap-2 text-xs text-zinc-300">
+            <input
+              type="checkbox"
+              checked={useDeps}
+              onChange={(e) => setUseDeps(e.target.checked)}
+            />
+            Respect dependencies (ILP)
+          </label>
         </div>
         {error && <p className="mt-2 text-xs text-rose-400">{error}</p>}
       </div>

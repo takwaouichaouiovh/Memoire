@@ -7,6 +7,8 @@ import PrioritizationPanel from "../priority/PrioritizationPanel";
 import SprintPlannerPanel from "../priority/SprintPlannerPanel";
 import RetroPanel from "../retro/RetroPanel";
 import SettingsPanel from "../settings/SettingsPanel";
+import SupervisorPanel from "../agents/SupervisorPanel";
+import GitHubIntegrationPanel from "../integrations/GitHubIntegrationPanel";
 import Sidebar from "./Sidebar";
 import { fetchHealth } from "../../lib/api";
 import { DEFAULT_SETTINGS, AppSettings, WorkspaceView } from "../../lib/workspace";
@@ -32,6 +34,14 @@ const VIEW_HEADERS: Record<WorkspaceView, { title: string; subtitle: string }> =
   retro: {
     title: "Retrospective",
     subtitle: "Paste meeting notes — get action items, risks, wins and blockers.",
+  },
+  supervisor: {
+    title: "Supervisor",
+    subtitle: "Multi-agent orchestrator: groom → prioritize → plan → summarize.",
+  },
+  integrations: {
+    title: "Integrations",
+    subtitle: "Import a real backlog from GitHub Issues, or push features back.",
   },
   documents: {
     title: "Documents",
@@ -129,6 +139,18 @@ export default function WorkspaceShell({ initialView = "split" }: { initialView?
         {view === "retro" && (
           <article className="h-[82vh] min-h-[560px] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/80">
             <RetroPanel />
+          </article>
+        )}
+
+        {view === "supervisor" && (
+          <article className="h-[82vh] min-h-[560px] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/80">
+            <SupervisorPanel />
+          </article>
+        )}
+
+        {view === "integrations" && (
+          <article className="h-[82vh] min-h-[560px] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/80">
+            <GitHubIntegrationPanel />
           </article>
         )}
 

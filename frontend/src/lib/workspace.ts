@@ -1,4 +1,4 @@
-export type WorkspaceView = "split" | "chat" | "prioritization" | "documents" | "sprint" | "retro" | "settings";
+export type WorkspaceView = "split" | "chat" | "prioritization" | "documents" | "sprint" | "retro" | "supervisor" | "integrations" | "settings";
 
 export interface AppSettings {
   apiBaseUrl: string;

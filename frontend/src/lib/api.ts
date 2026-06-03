@@ -67,6 +67,10 @@ export interface PrioritizationBacklogFeature {
   strategic_alignment: number;
   dependency_count: number;
   user_requests: number;
+  depends_on?: string[];
+  external_source?: string;
+  external_id?: string;
+  external_url?: string;
 }
 
 interface PrioritizationBacklogResponse {
@@ -362,4 +366,125 @@ export async function renameSession(sessionId: string, title: string): Promise<S
 
 export async function deleteSession(sessionId: string): Promise<{ deleted: string }> {
   return deleteJson<{ deleted: string }>(`/api/sessions/${encodeURIComponent(sessionId)}`);
+}
+
+// ── Dependency-aware sprint planner ──────────────────────────────────────────
+
+export interface DependencyDiagnostics {
+  cycles: string[][];
+  missing_dependencies: string[];
+  n_features: number;
+  n_edges: number;
+}
+
+export interface DependencySprintPlan extends SprintPlan {
+  solver: "ilp" | "greedy";
+  optimal: boolean;
+  diagnostics: DependencyDiagnostics;
+}
+
+export async function planSprintWithDependencies(
+  features: PrioritizationBacklogFeature[],
+  velocity: number,
+  algorithm: string = "rice",
+  solver: "auto" | "ilp" | "greedy" = "auto",
+  use_ai_blend: boolean = false,
+): Promise<DependencySprintPlan> {
+  return postJson<unknown, DependencySprintPlan>(
+    "/api/prioritization/sprint-plan-deps",
+    { features, velocity, algorithm, use_ai_blend, solver },
+  );
+}
+
+// ── Supervisor (multi-agent orchestrator) ────────────────────────────────────
+
+export interface SupervisorStep {
+  node: string;
+  decision?: string;
+  note?: string;
+  payload?: Record<string, unknown>;
+}
+
+export interface SupervisorResponse {
+  goal: string;
+  summary: string;
+  sprint_plan: DependencySprintPlan | null;
+  groomed_story_count: number;
+  trace: SupervisorStep[];
+  iterations: number;
+}
+
+export interface SupervisorRequest {
+  goal: string;
+  epic?: string;
+  velocity?: number;
+  algorithm?: string;
+  use_ai_blend?: boolean;
+  respect_dependencies?: boolean;
+  persist_groomed_stories?: boolean;
+  use_llm_router?: boolean;
+}
+
+export async function runSupervisor(req: SupervisorRequest): Promise<SupervisorResponse> {
+  return postJson<SupervisorRequest, SupervisorResponse>("/api/agents/supervisor", req);
+}
+
+// ── GitHub Issues integration ────────────────────────────────────────────────
+
+export interface GitHubImportRequest {
+  repo: string;
+  token?: string;
+  state?: "open" | "closed" | "all";
+  limit?: number;
+  label_filter?: string;
+  merge_strategy?: "replace" | "upsert" | "append";
+}
+
+export interface GitHubImportResponse {
+  repo: string;
+  fetched: number;
+  created: number;
+  updated: number;
+  skipped: number;
+  features: PrioritizationBacklogFeature[];
+  warnings: string[];
+}
+
+export async function importGitHub(req: GitHubImportRequest): Promise<GitHubImportResponse> {
+  return postJson<GitHubImportRequest, GitHubImportResponse>(
+    "/api/integrations/github/import",
+    req,
+  );
+}
+
+export interface GitHubExportPreview {
+  feature_id: string;
+  action: "create" | "update" | "skip";
+  title: string;
+  body: string;
+  labels: string[];
+  existing_issue?: number | null;
+}
+
+export interface GitHubExportResponse {
+  repo: string;
+  apply: boolean;
+  total: number;
+  previews: GitHubExportPreview[];
+  warnings: string[];
+}
+
+export interface GitHubExportRequest {
+  repo: string;
+  token?: string;
+  feature_ids?: string[];
+  apply?: boolean;
+  label_prefix?: string;
+}
+
+export async function exportGitHub(req: GitHubExportRequest): Promise<GitHubExportResponse> {
+  return postJson<GitHubExportRequest, GitHubExportResponse>(
+    "/api/integrations/github/export",
+    req,
+  );
 }
