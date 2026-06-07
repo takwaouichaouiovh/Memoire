@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+
+from app.auth import AuthUser, require_role
+from app.notifications_store import create_notification
 
 router = APIRouter()
 
@@ -20,7 +24,9 @@ class ResetResponse(BaseModel):
 
 
 @router.post("/reset-demo", response_model=ResetResponse)
-async def reset_demo() -> ResetResponse:
+async def reset_demo(
+    user: Annotated[AuthUser, Depends(require_role("admin"))],
+) -> ResetResponse:
     """Wipe runtime state so the next demo starts clean.
 
     - Backlog → empty list
@@ -37,6 +43,13 @@ async def reset_demo() -> ResetResponse:
     if _SESSIONS_PATH.parent.exists():
         _SESSIONS_PATH.write_text(json.dumps({}), encoding="utf-8")
         sessions_cleared = True
+
+    create_notification(
+        user_id=user.id,
+        title="Demo reset",
+        message=f"Backlog cleared={backlog_cleared}, sessions cleared={sessions_cleared}.",
+        kind="warning",
+    )
 
     return ResetResponse(
         backlog_cleared=backlog_cleared,

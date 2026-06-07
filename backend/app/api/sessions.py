@@ -30,10 +30,12 @@ import json
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+
+from app.auth import AuthUser, get_current_user
 
 router = APIRouter()
 
@@ -162,7 +164,9 @@ def append_message(
 # ── Endpoints ─────────────────────────────────────────────────────────────
 
 @router.get("/", response_model=SessionListResponse)
-async def list_sessions() -> SessionListResponse:
+async def list_sessions(
+    _user: Annotated[AuthUser, Depends(get_current_user)],
+) -> SessionListResponse:
     sessions = _read_all()
     summaries = [
         SessionSummary(
@@ -179,7 +183,10 @@ async def list_sessions() -> SessionListResponse:
 
 
 @router.get("/{session_id}", response_model=Session)
-async def get_session(session_id: str) -> Session:
+async def get_session(
+    session_id: str,
+    _user: Annotated[AuthUser, Depends(get_current_user)],
+) -> Session:
     sessions = _read_all()
     session = _find(sessions, session_id)
     if session is None:
@@ -188,7 +195,11 @@ async def get_session(session_id: str) -> Session:
 
 
 @router.patch("/{session_id}", response_model=SessionSummary)
-async def rename_session(session_id: str, req: RenameRequest) -> SessionSummary:
+async def rename_session(
+    session_id: str,
+    req: RenameRequest,
+    _user: Annotated[AuthUser, Depends(get_current_user)],
+) -> SessionSummary:
     with _LOCK:
         sessions = _read_all()
         session = _find(sessions, session_id)
@@ -208,7 +219,10 @@ async def rename_session(session_id: str, req: RenameRequest) -> SessionSummary:
 
 
 @router.delete("/{session_id}")
-async def delete_session(session_id: str) -> dict:
+async def delete_session(
+    session_id: str,
+    _user: Annotated[AuthUser, Depends(get_current_user)],
+) -> dict:
     with _LOCK:
         sessions = _read_all()
         if _find(sessions, session_id) is None:

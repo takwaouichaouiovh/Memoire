@@ -4,9 +4,13 @@ Prioritization API — /api/prioritization
 
 import json
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+
+from app.auth import AuthUser, get_current_user, require_role
+from app.notifications_store import create_notification
 from app.prioritization.algorithms import (
     Feature, ScoredFeature, prioritize, AlgoName,
     score_rice, score_wsjf, score_ice, score_kano, score_value_effort, score_moscow,
@@ -56,7 +60,10 @@ class BacklogUpdateRequest(BaseModel):
 
 
 @router.post("/", response_model=PrioritizeResponse)
-async def run_prioritization(req: PrioritizeRequest):
+async def run_prioritization(
+    req: PrioritizeRequest,
+    _user: Annotated[AuthUser, Depends(get_current_user)],
+):
     results = prioritize(req.features, req.algorithm, req.use_ai_blend)
     return PrioritizeResponse(
         algorithm=req.algorithm,
@@ -66,7 +73,10 @@ async def run_prioritization(req: PrioritizeRequest):
 
 
 @router.post("/quick-score", response_model=QuickScoreResponse)
-async def quick_score(feature: Feature):
+async def quick_score(
+    feature: Feature,
+    _user: Annotated[AuthUser, Depends(get_current_user)],
+):
     """Score a single feature across all algorithms instantly."""
     ve, quadrant = score_value_effort(feature)
     return QuickScoreResponse(
@@ -84,7 +94,7 @@ async def quick_score(feature: Feature):
 
 
 @router.get("/backlog", response_model=BacklogListResponse)
-async def get_backlog():
+async def get_backlog(_user: Annotated[AuthUser, Depends(get_current_user)]):
     features = _read_backlog()
     return BacklogListResponse(
         features=[feature.model_dump() for feature in features],
@@ -93,13 +103,25 @@ async def get_backlog():
 
 
 @router.put("/backlog", response_model=BacklogSummaryResponse)
-async def replace_backlog(req: BacklogUpdateRequest):
+async def replace_backlog(
+    req: BacklogUpdateRequest,
+    user: Annotated[AuthUser, Depends(require_role("admin", "po"))],
+):
     _write_backlog(req.features)
+    create_notification(
+        user_id=user.id,
+        title="Backlog updated",
+        message=f"Saved {len(req.features)} features to the backlog.",
+        kind="info",
+    )
     return BacklogSummaryResponse(total=len(req.features))
 
 
 @router.delete("/backlog/{feature_id}", response_model=BacklogDeleteResponse)
-async def delete_backlog_feature(feature_id: str):
+async def delete_backlog_feature(
+    feature_id: str,
+    _user: Annotated[AuthUser, Depends(require_role("admin", "po"))],
+):
     features = _read_backlog()
     filtered = [feature for feature in features if feature.id != feature_id]
     _write_backlog(filtered)
@@ -107,12 +129,38 @@ async def delete_backlog_feature(feature_id: str):
 
 
 @router.post("/sprint-plan", response_model=SprintPlan)
-async def sprint_plan(req: SprintPlanRequest):
+async def sprint_plan(
+    req: SprintPlanRequest,
+    user: Annotated[AuthUser, Depends(get_current_user)],
+):
     """Knapsack-based sprint composition: maximize score within velocity budget."""
-    return plan_sprint(req)
+    plan = plan_sprint(req)
+    create_notification(
+        user_id=user.id,
+        title="Sprint plan ready",
+        message=(
+            f"{len(plan.selected)} feature(s) selected for velocity "
+            f"{req.velocity} using {req.algorithm.upper()}."
+        ),
+        kind="success",
+    )
+    return plan
 
 
 @router.post("/sprint-plan-deps", response_model=DependencySprintPlan)
-async def sprint_plan_with_deps(req: DependencyPlanRequest):
+async def sprint_plan_with_deps(
+    req: DependencyPlanRequest,
+    user: Annotated[AuthUser, Depends(get_current_user)],
+):
     """Precedence-constrained sprint composition (ILP or topological greedy)."""
-    return plan_sprint_with_dependencies(req)
+    plan = plan_sprint_with_dependencies(req)
+    create_notification(
+        user_id=user.id,
+        title="Dependency-aware sprint plan ready",
+        message=(
+            f"Solver={plan.solver}, optimal={plan.optimal}, "
+            f"selected={len(plan.selected)}."
+        ),
+        kind="success",
+    )
+    return plan

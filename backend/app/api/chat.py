@@ -3,9 +3,13 @@ Chat API — /api/chat
 Streaming RAG responses with model routing
 """
 
-from fastapi import APIRouter, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+
+from app.auth import AuthUser, get_current_user
 from app.rag.engine import build_rag_chain, route_model, format_sources
 from app.models.api import SourceItem, SessionClearResponse
 from app.api.sessions import append_message
@@ -31,7 +35,10 @@ class ChatResponse(BaseModel):
 
 
 @router.post("/", response_model=ChatResponse)
-async def chat(req: ChatRequest):
+async def chat(
+    req: ChatRequest,
+    _user: Annotated[AuthUser, Depends(get_current_user)],
+):
     model = req.model or route_model(req.message)
 
     try:
@@ -71,7 +78,10 @@ async def chat(req: ChatRequest):
 
 
 @router.post("/stream")
-async def chat_stream(req: ChatRequest):
+async def chat_stream(
+    req: ChatRequest,
+    _user: Annotated[AuthUser, Depends(get_current_user)],
+):
     """Server-Sent Events streaming endpoint."""
     model = req.model or route_model(req.message)
     chain = build_rag_chain(model=model, session_id=req.session_id)
@@ -89,6 +99,9 @@ async def chat_stream(req: ChatRequest):
 
 
 @router.delete("/session/{session_id}", response_model=SessionClearResponse)
-async def clear_session(session_id: str):
+async def clear_session(
+    session_id: str,
+    _user: Annotated[AuthUser, Depends(get_current_user)],
+):
     _sessions.pop(session_id, None)
     return SessionClearResponse(cleared=session_id)

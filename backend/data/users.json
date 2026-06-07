@@ -1,0 +1,47 @@
+[
+  {
+    "id": "cbd014e9-201d-4271-9998-d660074395e3",
+    "email": "qa-1780745482@postie.ai",
+    "password_hash": "$2b$12$MHfGIp8ZssTXaRg7Ds8Hyu2EA.RpbKe/nUBQe4YIa1LkOJIcllJDu",
+    "role": "po",
+    "created_at": "2026-06-06T11:31:23.343069+00:00",
+    "updated_at": "2026-06-06T11:31:23.925770+00:00",
+    "last_login_at": "2026-06-06T11:31:23.925770+00:00"
+  },
+  {
+    "id": "2b0e72cc-f0fd-41ee-8d4e-df7a63ec9c96",
+    "email": "aouichaoui.takwa@gmail.com",
+    "password_hash": "$2b$12$NDKdrsPFH3bfluSLS1c/veuXEdvRoeQQQ9wrNdliMm4pe5hNBOnS6",
+    "role": "po",
+    "created_at": "2026-06-06T15:05:11.687789+00:00",
+    "updated_at": "2026-06-07T18:26:20.368297+00:00",
+    "last_login_at": "2026-06-07T18:26:20.368297+00:00"
+  },
+  {
+    "id": "67df48b0-4b39-4d19-bf8f-a52f86239c4b",
+    "email": "po-1780759427@postie.ai",
+    "password_hash": "$2b$12$OIql/CYcpzRC9qslGm.rt.8fx2Oh4BtL0TWgWW7llQO2L7dVsAQDu",
+    "role": "po",
+    "created_at": "2026-06-06T15:23:48.294284+00:00",
+    "updated_at": "2026-06-06T15:23:48.294284+00:00",
+    "last_login_at": null
+  },
+  {
+    "id": "daafcfd3-3359-4178-8d9e-8335a70d230d",
+    "email": "adm-1780759427@postie.ai",
+    "password_hash": "$2b$12$OqMyvkbu4xqItWYJfko.UeIzheRw1An0YpXXWhAAMrThSzugU3Sne",
+    "role": "admin",
+    "created_at": "2026-06-06T15:23:48.616746+00:00",
+    "updated_at": "2026-06-06T15:23:48.616746+00:00",
+    "last_login_at": null
+  },
+  {
+    "id": "3ee29e88-8c89-4166-b8dc-394877bf3133",
+    "email": "vw-1780759427@postie.ai",
+    "password_hash": "$2b$12$7BE9aEQ.nzH6XYb6KiimjeNmgHwnxwxhDkaadZvUyxQR/w3XFGqKq",
+    "role": "viewer",
+    "created_at": "2026-06-06T15:23:48.897580+00:00",
+    "updated_at": "2026-06-06T15:23:48.897580+00:00",
+    "last_login_at": null
+  }
+]

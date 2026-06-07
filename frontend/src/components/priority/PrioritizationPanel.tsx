@@ -706,7 +706,7 @@ export default function PrioritizationPanel() {
                   <option value="must">Must — critical, non-negotiable</option>
                   <option value="should">Should — important, high priority</option>
                   <option value="could">Could — nice-to-have, deferrable</option>
-                  <option value="wont">Won't — out of scope</option>
+                  <option value="wont">Won&apos;t — out of scope</option>
                 </select>
               </label>
             </div>
@@ -793,7 +793,7 @@ export default function PrioritizationPanel() {
                   <option value="must_be">Must-be — absence causes dissatisfaction (login, security)</option>
                   <option value="performance">Performance — more is better, less is worse (speed)</option>
                   <option value="delighter">Delighter — unexpected, creates delight (AI suggestions)</option>
-                  <option value="indifferent">Indifferent — users don't care either way</option>
+                  <option value="indifferent">Indifferent — users don&apos;t care either way</option>
                 </select>
               </label>
               <SliderField

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, Loader2, MessageSquarePlus, Send, Sparkles, Wrench } from "lucide-react";
+import { Bot, Loader2, MessageSquarePlus, Send, Wrench } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { sendChatMessage, Source } from "../../hooks/useChat";
@@ -281,30 +281,31 @@ export default function ChatPanel() {
       />
       <div className="flex h-full flex-1 flex-col">
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-3">
-        <div>
-          <h3 className="text-sm font-semibold text-zinc-100">PO Assistant</h3>
-          <p className="font-mono text-[10px] text-zinc-500">Session {sessionId.slice(-6)}</p>
+      <div className="flex items-center justify-between border-b border-zinc-800/80 px-5 py-2.5">
+        <div className="min-w-0">
+          <h3 className="truncate text-sm font-semibold text-zinc-100">PO Assistant</h3>
+          <p className="font-mono text-[10px] text-zinc-600">{sessionId.slice(-6)}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => setAgentMode((v) => !v)}
             title="Toggle tool-calling agent mode"
-            className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
+            aria-pressed={agentMode}
+            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
               agentMode
-                ? "border-amber-500/40 bg-amber-500/15 text-amber-200"
-                : "border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-zinc-500"
+                ? "bg-amber-500/15 text-amber-200 ring-1 ring-inset ring-amber-500/30"
+                : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
             }`}
           >
             <Bot className="h-3.5 w-3.5" />
-            {agentMode ? "Agent ON" : "Agent"}
+            Agent
           </button>
           <button
             type="button"
             onClick={handleNewChat}
             disabled={loading}
-            className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:border-zinc-500 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:opacity-40"
           >
             <MessageSquarePlus className="h-3.5 w-3.5" />
             New chat
@@ -325,7 +326,7 @@ export default function ChatPanel() {
                 key={suggestion}
                 type="button"
                 onClick={() => handleSend(suggestion)}
-                className="rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-zinc-300 transition-colors hover:border-violet-500/40 hover:text-violet-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                className="rounded-full border border-zinc-800 bg-zinc-900/40 px-3 py-1.5 text-xs text-zinc-400 transition-colors hover:border-zinc-700 hover:bg-zinc-900 hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
               >
                 {suggestion}
               </button>
@@ -337,17 +338,16 @@ export default function ChatPanel() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-zinc-800 px-6 pb-5 pt-3">
+      <div className="border-t border-zinc-800/80 px-5 pb-4 pt-3">
         <label htmlFor="chat-input" className="sr-only">
           Send a message to the PO assistant
         </label>
-        <div className="flex items-end gap-3 rounded-xl border border-zinc-700 bg-zinc-800/60 px-4 py-3 transition-colors focus-within:border-violet-500">
-          <Sparkles className="mb-0.5 h-4 w-4 shrink-0 text-zinc-500" aria-hidden />
+        <div className="flex items-end gap-2 rounded-xl border border-zinc-800 bg-zinc-900/60 px-3.5 py-2.5 transition-colors focus-within:border-violet-500/60 focus-within:bg-zinc-900">
           <textarea
             id="chat-input"
             aria-label="Message"
-            className="max-h-28 min-h-[20px] flex-1 resize-none bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-500"
-            placeholder="Ask about backlog, user stories, SAFe, sprint planning… (Shift+Enter for newline)"
+            className="max-h-28 min-h-[20px] flex-1 resize-none bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-600"
+            placeholder="Ask anything… (Shift+Enter for newline)"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -363,7 +363,7 @@ export default function ChatPanel() {
             onClick={() => handleSend()}
             disabled={loading || !input.trim()}
             aria-label="Send message"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-600 transition-colors hover:bg-violet-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:opacity-30"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-600 transition-colors hover:bg-violet-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:bg-zinc-800 disabled:text-zinc-600"
           >
             {loading ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />

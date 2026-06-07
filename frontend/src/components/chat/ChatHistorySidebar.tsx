@@ -144,15 +144,15 @@ export default function ChatHistorySidebar({
 
   return (
     <aside
-      className="relative flex h-full shrink-0 flex-col border-r border-zinc-800 bg-zinc-950/40"
+      className="relative flex h-full shrink-0 flex-col border-r border-zinc-800/80 bg-zinc-950/30"
       style={{ width: `${width}px` }}
     >
-      <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-zinc-200">
-          <History className="h-4 w-4 text-violet-400" />
+      <div className="flex items-center justify-between border-b border-zinc-800/80 px-4 py-2.5">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          <History className="h-3.5 w-3.5" />
           History
         </div>
-        {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-500" />}
+        {loading && <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-600" />}
       </div>
 
       {error && (
@@ -161,22 +161,22 @@ export default function ChatHistorySidebar({
 
       <div className="flex-1 overflow-y-auto px-2 py-2">
         {sessions.length === 0 && !loading && (
-          <p className="px-2 py-4 text-center text-[11px] text-zinc-500">
+          <p className="px-2 py-6 text-center text-[11px] text-zinc-600">
             No conversations yet.
           </p>
         )}
 
-        <ul className="space-y-1">
+        <ul className="space-y-0.5">
           {sessions.map((s) => {
             const isActive = s.id === currentSessionId;
             const isEditing = editingId === s.id;
             return (
               <li
                 key={s.id}
-                className={`group relative rounded-lg border px-2.5 py-2 text-xs transition-colors ${
+                className={`group relative rounded-md px-2.5 py-2 text-xs transition-colors ${
                   isActive
-                    ? "border-violet-500/40 bg-violet-500/10"
-                    : "border-transparent hover:border-zinc-700 hover:bg-zinc-900"
+                    ? "bg-zinc-800/70 text-zinc-100"
+                    : "text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200"
                 }`}
               >
                 {isEditing ? (
@@ -215,17 +215,25 @@ export default function ChatHistorySidebar({
                     className="block w-full text-left"
                   >
                     <div className="flex items-center gap-1.5">
-                      <MessageSquare className="h-3 w-3 shrink-0 text-zinc-500" />
-                      <span className="truncate font-medium text-zinc-100">
+                      <MessageSquare
+                        className={`h-3 w-3 shrink-0 ${
+                          isActive ? "text-violet-300" : "text-zinc-600"
+                        }`}
+                      />
+                      <span
+                        className={`truncate font-medium ${
+                          isActive ? "text-zinc-100" : "text-zinc-200"
+                        }`}
+                      >
                         {s.title}
                       </span>
                       {s.mode === "agent" && (
-                        <span className="rounded bg-amber-500/15 px-1 text-[9px] font-bold uppercase text-amber-300">
+                        <span className="ml-auto rounded bg-amber-500/15 px-1 text-[9px] font-bold uppercase text-amber-300">
                           AG
                         </span>
                       )}
                     </div>
-                    <div className="mt-0.5 flex items-center justify-between text-[10px] text-zinc-500">
+                    <div className="mt-0.5 flex items-center justify-between text-[10px] text-zinc-600">
                       <span>{s.message_count} msgs</span>
                       <span>{formatRelative(s.updated_at)}</span>
                     </div>
@@ -241,7 +249,7 @@ export default function ChatHistorySidebar({
                         setEditingId(s.id);
                         setEditValue(s.title);
                       }}
-                      className="rounded p-1 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                      className="rounded p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-200"
                       aria-label="Rename"
                       title="Rename"
                     >
@@ -253,7 +261,7 @@ export default function ChatHistorySidebar({
                         e.stopPropagation();
                         void handleDelete(s.id);
                       }}
-                      className="rounded p-1 text-zinc-400 hover:bg-rose-500/15 hover:text-rose-300"
+                      className="rounded p-1 text-zinc-500 hover:bg-rose-500/10 hover:text-rose-300"
                       aria-label="Delete"
                       title="Delete"
                     >
@@ -282,7 +290,7 @@ export default function ChatHistorySidebar({
           }
         }}
         title="Drag to resize · double-click to reset"
-        className={`absolute right-0 top-0 z-10 h-full w-1.5 cursor-col-resize transition-colors ${
+        className={`absolute right-0 top-0 z-10 h-full w-1 cursor-col-resize transition-colors ${
           resizing ? "bg-violet-500/60" : "bg-transparent hover:bg-violet-500/30"
         }`}
       />

@@ -13,7 +13,17 @@ from fastapi.middleware.cors import CORSMiddleware
 # Load backend/.env before importing API modules that initialize LLM config.
 load_dotenv(dotenv_path=Path(__file__).resolve().parents[1] / ".env", override=True)
 
-from app.api import chat, prioritization, documents, agents, sessions, admin, integrations
+from app.api import (
+    admin,
+    agents,
+    auth,
+    chat,
+    documents,
+    integrations,
+    notifications,
+    prioritization,
+    sessions,
+)
 from app.models.api import HealthResponse
 
 app = FastAPI(
@@ -42,6 +52,8 @@ app.include_router(agents.router, prefix="/api/agents", tags=["agents"])
 app.include_router(sessions.router, prefix="/api/sessions", tags=["sessions"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 app.include_router(integrations.router, prefix="/api/integrations", tags=["integrations"])
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(notifications.router, prefix="/api/notifications", tags=["notifications"])
 
 
 @app.get("/health", response_model=HealthResponse)

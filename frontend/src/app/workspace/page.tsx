@@ -2,7 +2,7 @@ import WorkspaceShell from "../../components/layout/WorkspaceShell";
 
 export default function WorkspacePage() {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(124,58,237,0.18),transparent_45%),radial-gradient(circle_at_bottom,_rgba(16,185,129,0.12),transparent_40%)] p-4 md:p-6">
+    <main className="min-h-screen bg-zinc-950 px-4 py-5 md:px-6 md:py-6">
       <WorkspaceShell initialView="chat" />
     </main>
   );

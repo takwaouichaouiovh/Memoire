@@ -1,0 +1,102 @@
+[
+  {
+    "id": "c75a4bcc-ae03-4c2e-8e88-11384bd4a025",
+    "user_id": "cbd014e9-201d-4271-9998-d660074395e3",
+    "title": "Welcome to POSTIE",
+    "message": "Your account is ready. You can now use protected workspace features.",
+    "kind": "success",
+    "read": false,
+    "created_at": "2026-06-06T11:31:23.427695+00:00",
+    "metadata": {}
+  },
+  {
+    "id": "fca1d07b-f14a-4b0e-b12f-0163bf0df42d",
+    "user_id": "cbd014e9-201d-4271-9998-d660074395e3",
+    "title": "Sprint plan ready",
+    "message": "Knapsack plan generated for 28 SP velocity.",
+    "kind": "success",
+    "read": true,
+    "created_at": "2026-06-06T11:31:23.550330+00:00",
+    "metadata": {}
+  },
+  {
+    "id": "2a574e08-4b6e-4f73-a976-4efcba8fb62e",
+    "user_id": "cbd014e9-201d-4271-9998-d660074395e3",
+    "title": "Login successful",
+    "message": "You are connected to POSTIE.",
+    "kind": "info",
+    "read": false,
+    "created_at": "2026-06-06T11:31:23.937289+00:00",
+    "metadata": {}
+  },
+  {
+    "id": "c6e6b1d0-aca1-4cc7-995b-b7edcf50a6ce",
+    "user_id": "2b0e72cc-f0fd-41ee-8d4e-df7a63ec9c96",
+    "title": "Welcome to POSTIE",
+    "message": "Your account is ready. You can now use protected workspace features.",
+    "kind": "success",
+    "read": false,
+    "created_at": "2026-06-06T15:05:11.712588+00:00",
+    "metadata": {}
+  },
+  {
+    "id": "16bda5be-fedc-48e2-9be8-d8f7c1aab515",
+    "user_id": "67df48b0-4b39-4d19-bf8f-a52f86239c4b",
+    "title": "Welcome to POSTIE",
+    "message": "Your account is ready. You can now use protected workspace features.",
+    "kind": "success",
+    "read": false,
+    "created_at": "2026-06-06T15:23:48.318817+00:00",
+    "metadata": {}
+  },
+  {
+    "id": "2c1a65a3-7525-4e05-aae5-47e24bb4a2d8",
+    "user_id": "daafcfd3-3359-4178-8d9e-8335a70d230d",
+    "title": "Welcome to POSTIE",
+    "message": "Your account is ready. You can now use protected workspace features.",
+    "kind": "success",
+    "read": false,
+    "created_at": "2026-06-06T15:23:48.629660+00:00",
+    "metadata": {}
+  },
+  {
+    "id": "8d148702-121c-4fe2-b53c-84cbdda9aeec",
+    "user_id": "3ee29e88-8c89-4166-b8dc-394877bf3133",
+    "title": "Welcome to POSTIE",
+    "message": "Your account is ready. You can now use protected workspace features.",
+    "kind": "success",
+    "read": false,
+    "created_at": "2026-06-06T15:23:48.952171+00:00",
+    "metadata": {}
+  },
+  {
+    "id": "8d54882a-305f-4ab3-9874-0a617115ae8a",
+    "user_id": "67df48b0-4b39-4d19-bf8f-a52f86239c4b",
+    "title": "Backlog updated",
+    "message": "Saved 0 features to the backlog.",
+    "kind": "info",
+    "read": false,
+    "created_at": "2026-06-06T15:23:49.020978+00:00",
+    "metadata": {}
+  },
+  {
+    "id": "469d6bfb-b8a1-4271-ad78-a5d6a39584a4",
+    "user_id": "daafcfd3-3359-4178-8d9e-8335a70d230d",
+    "title": "Demo reset",
+    "message": "Backlog cleared=True, sessions cleared=True.",
+    "kind": "warning",
+    "read": false,
+    "created_at": "2026-06-06T15:23:49.053506+00:00",
+    "metadata": {}
+  },
+  {
+    "id": "a58b55ee-8e3e-46df-b2dd-a9065ee65f86",
+    "user_id": "2b0e72cc-f0fd-41ee-8d4e-df7a63ec9c96",
+    "title": "Login successful",
+    "message": "You are connected to POSTIE.",
+    "kind": "info",
+    "read": false,
+    "created_at": "2026-06-07T18:26:20.448899+00:00",
+    "metadata": {}
+  }
+]

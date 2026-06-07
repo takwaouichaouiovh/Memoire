@@ -5,6 +5,38 @@ export const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ??
   (process.env.NODE_ENV === "development" ? DEV_API_FALLBACK : PROD_API_FALLBACK);
 
+const ACCESS_TOKEN_KEY = "postie_access_token";
+
+function canUseStorage(): boolean {
+  return typeof window !== "undefined";
+}
+
+export function getAccessToken(): string | null {
+  if (!canUseStorage()) return null;
+  return window.localStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+export function setAccessToken(token: string): void {
+  if (!canUseStorage()) return;
+  window.localStorage.setItem(ACCESS_TOKEN_KEY, token);
+}
+
+export function clearAccessToken(): void {
+  if (!canUseStorage()) return;
+  window.localStorage.removeItem(ACCESS_TOKEN_KEY);
+}
+
+function authHeaders(base?: HeadersInit): HeadersInit {
+  const token = getAccessToken();
+  const headers: Record<string, string> = {
+    ...(base as Record<string, string> | undefined),
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export interface Source {
   name: string;
   page?: number;
@@ -96,6 +128,12 @@ async function handleResponse<T>(res: Response): Promise<T> {
     } catch {
       // Non-JSON error body: keep status-only message
     }
+    if (res.status === 401 && canUseStorage()) {
+      clearAccessToken();
+      if (!window.location.pathname.startsWith("/login")) {
+        window.location.href = "/login";
+      }
+    }
     throw new Error(`API error: ${res.status}${detail}`);
   }
   return res.json() as Promise<T>;
@@ -107,19 +145,34 @@ export async function postJson<TRequest, TResponse>(
 ): Promise<TResponse> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(payload),
   });
   return handleResponse<TResponse>(res);
 }
 
 export async function getJson<TResponse>(path: string): Promise<TResponse> {
-  const res = await fetch(`${API_BASE}${path}`);
+  const res = await fetch(`${API_BASE}${path}`, { headers: authHeaders() });
   return handleResponse<TResponse>(res);
 }
 
 export async function deleteJson<TResponse>(path: string): Promise<TResponse> {
-  const res = await fetch(`${API_BASE}${path}`, { method: "DELETE" });
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  return handleResponse<TResponse>(res);
+}
+
+export async function patchJson<TRequest, TResponse>(
+  path: string,
+  payload: TRequest,
+): Promise<TResponse> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "PATCH",
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(payload),
+  });
   return handleResponse<TResponse>(res);
 }
 
@@ -148,7 +201,11 @@ export async function deleteDocument(filename: string): Promise<DocumentDeleteRe
 export async function uploadDocument(file: File): Promise<DocumentUploadResponse> {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(`${API_BASE}/api/documents/upload`, { method: "POST", body: form });
+  const res = await fetch(`${API_BASE}/api/documents/upload`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: form,
+  });
   return handleResponse<DocumentUploadResponse>(res);
 }
 
@@ -164,7 +221,7 @@ export async function fetchPrioritizationBacklog(): Promise<PrioritizationBacklo
 export async function savePrioritizationBacklog(features: PrioritizationBacklogFeature[]): Promise<number> {
   const data = await fetch(`${API_BASE}/api/prioritization/backlog`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ features }),
   });
   const parsed = await handleResponse<PrioritizationBacklogSummaryResponse>(data);
@@ -356,12 +413,10 @@ export async function fetchSession(sessionId: string): Promise<SessionDetail> {
 }
 
 export async function renameSession(sessionId: string, title: string): Promise<SessionSummary> {
-  const res = await fetch(`${API_BASE}/api/sessions/${encodeURIComponent(sessionId)}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title }),
-  });
-  return handleResponse<SessionSummary>(res);
+  return patchJson<{ title: string }, SessionSummary>(
+    `/api/sessions/${encodeURIComponent(sessionId)}`,
+    { title },
+  );
 }
 
 export async function deleteSession(sessionId: string): Promise<{ deleted: string }> {
@@ -487,4 +542,84 @@ export async function exportGitHub(req: GitHubExportRequest): Promise<GitHubExpo
     "/api/integrations/github/export",
     req,
   );
+}
+
+// ── Auth + notifications ────────────────────────────────────────────────────
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: "admin" | "po" | "viewer";
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: "bearer";
+  user: AuthUser;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface RegisterPayload extends LoginPayload {
+  role?: "admin" | "po" | "viewer";
+}
+
+export async function login(payload: LoginPayload): Promise<AuthResponse> {
+  const data = await postJson<LoginPayload, AuthResponse>("/api/auth/login", payload);
+  setAccessToken(data.access_token);
+  return data;
+}
+
+export async function register(payload: RegisterPayload): Promise<AuthResponse> {
+  const data = await postJson<RegisterPayload, AuthResponse>("/api/auth/register", payload);
+  setAccessToken(data.access_token);
+  return data;
+}
+
+export async function fetchMe(): Promise<AuthUser> {
+  return getJson<AuthUser>("/api/auth/me");
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await postJson<{ current_password: string; new_password: string }, { changed: boolean }>(
+    "/api/auth/change-password",
+    { current_password: currentPassword, new_password: newPassword },
+  );
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  kind: "info" | "success" | "warning" | "error";
+  read: boolean;
+  created_at: string;
+  metadata: Record<string, unknown>;
+}
+
+export interface NotificationsResponse {
+  items: NotificationItem[];
+  unread_count: number;
+}
+
+export async function fetchNotifications(limit: number = 30): Promise<NotificationsResponse> {
+  return getJson<NotificationsResponse>(`/api/notifications/?limit=${limit}`);
+}
+
+export async function markNotificationRead(notificationId: string): Promise<void> {
+  await patchJson<Record<string, never>, { read: string }>(
+    `/api/notifications/${encodeURIComponent(notificationId)}/read`,
+    {},
+  );
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  await postJson<Record<string, never>, { read_count: number }>("/api/notifications/read-all", {});
+}
+
+export async function deleteNotification(notificationId: string): Promise<void> {
+  await deleteJson<{ deleted: string }>(`/api/notifications/${encodeURIComponent(notificationId)}`);
 }
