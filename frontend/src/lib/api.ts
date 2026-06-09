@@ -1,9 +1,8 @@
-const PROD_API_FALLBACK = "https://postie-backend.onrender.com";
 const DEV_API_FALLBACK = "http://localhost:8000";
 
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ??
-  (process.env.NODE_ENV === "development" ? DEV_API_FALLBACK : PROD_API_FALLBACK);
+  (process.env.NODE_ENV === "development" ? DEV_API_FALLBACK : "");
 
 const ACCESS_TOKEN_KEY = "postie_access_token";
 
